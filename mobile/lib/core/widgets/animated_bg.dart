@@ -69,42 +69,42 @@ class _BgPainter extends CustomPainter {
     final orbPaint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 80);
 
     // Orb 1 — top right
-    orbPaint.color = AppTheme.honey.withAlpha(8);
+    orbPaint.color = AppTheme.honey.withAlpha(25);
     canvas.drawCircle(
       Offset(w * 0.8 + sin(t * 2 * pi) * 30, h * 0.15 + cos(t * 2 * pi) * 20),
-      120, orbPaint,
-    );
-
-    // Orb 2 — bottom left
-    orbPaint.color = AppTheme.honey.withAlpha(6);
-    canvas.drawCircle(
-      Offset(w * 0.2 + cos(t * 2 * pi + 1) * 25, h * 0.7 + sin(t * 2 * pi + 1) * 30),
       150, orbPaint,
     );
 
+    // Orb 2 — bottom left
+    orbPaint.color = AppTheme.honey.withAlpha(20);
+    canvas.drawCircle(
+      Offset(w * 0.2 + cos(t * 2 * pi + 1) * 25, h * 0.7 + sin(t * 2 * pi + 1) * 30),
+      180, orbPaint,
+    );
+
     // Floating particles
-    final dotPaint = Paint()..color = AppTheme.honey.withAlpha(30);
+    final dotPaint = Paint()..color = AppTheme.honey.withAlpha(80);
     final rng = Random(42);
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 35; i++) {
       final x = rng.nextDouble() * w;
       final baseY = rng.nextDouble() * h;
       final speed = 0.5 + rng.nextDouble() * 1.5;
       final y = (baseY + t * h * speed) % (h + 20) - 10;
-      final radius = 1.0 + rng.nextDouble() * 1.5;
-      dotPaint.color = AppTheme.honey.withAlpha(15 + rng.nextInt(25));
+      final radius = 1.5 + rng.nextDouble() * 2.5;
+      dotPaint.color = AppTheme.honey.withAlpha(50 + rng.nextInt(60));
       canvas.drawCircle(Offset(x + sin(t * 2 * pi + i) * 5, y), radius, dotPaint);
     }
 
-    // Subtle hexagon outlines
+    // Hexagon outlines
     final hexPaint = Paint()
-      ..color = AppTheme.honey.withAlpha(8)
+      ..color = AppTheme.honey.withAlpha(25)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5;
+      ..strokeWidth = 1.0;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 8; i++) {
       final cx = rng.nextDouble() * w;
       final cy = rng.nextDouble() * h;
-      final r = 30.0 + rng.nextDouble() * 40;
+      final r = 40.0 + rng.nextDouble() * 60;
       final angle = t * 2 * pi * 0.1 + i;
       _drawHex(canvas, Offset(cx, cy), r, angle, hexPaint);
     }
