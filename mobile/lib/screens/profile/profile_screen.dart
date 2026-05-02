@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../utils/topup_sheet.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -69,7 +70,57 @@ class ProfileScreen extends StatelessWidget {
             ]),
           ),
         ]),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
+
+        // Balance Card
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppTheme.darkCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.honey.withAlpha(50)),
+            boxShadow: [
+              BoxShadow(color: AppTheme.honey.withAlpha(10), blurRadius: 20, spreadRadius: -5),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Mavjud balans', style: TextStyle(fontSize: 14, color: AppTheme.muted, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Text(
+                '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
+                style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.honey),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => showTopUpSheet(context, auth),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.honey.withAlpha(20),
+                    foregroundColor: AppTheme.honey,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: AppTheme.honey.withAlpha(50)),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_circle_outline_rounded, size: 18),
+                      SizedBox(width: 8),
+                      Text("Balansni to'ldirish", style: TextStyle(fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
 
         _menuSection('Hisob', [
           _menuItem(Icons.person_outline_rounded, 'Profilni tahrirlash', () {}),
