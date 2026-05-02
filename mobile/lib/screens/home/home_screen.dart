@@ -191,17 +191,29 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 18),
           decoration: BoxDecoration(
             color: AppTheme.darkCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.darkBorder),
+            gradient: LinearGradient(
+              colors: [color.withAlpha(15), Colors.transparent],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color.withAlpha(40)),
+            boxShadow: [
+              BoxShadow(color: color.withAlpha(10), blurRadius: 10, offset: const Offset(0, 4)),
+            ],
           ),
           child: Column(children: [
             Container(
-              width: 40, height: 40,
-              decoration: BoxDecoration(color: color.withAlpha(25), borderRadius: BorderRadius.circular(12)),
-              child: Icon(icon, size: 20, color: color),
+              width: 44, height: 44,
+              decoration: BoxDecoration(
+                color: color.withAlpha(25),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [BoxShadow(color: color.withAlpha(20), blurRadius: 8)],
+              ),
+              child: Icon(icon, size: 22, color: color),
             ),
-            const SizedBox(height: 8),
-            Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.muted)),
+            const SizedBox(height: 10),
+            Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.muted)),
           ]),
         ),
       ),
@@ -210,22 +222,39 @@ class HomeScreen extends StatelessWidget {
 
   Widget _activityItem(String title, String subtitle, IconData icon, Color color, String time) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.darkBorder)),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        gradient: LinearGradient(
+          colors: [color.withAlpha(10), Colors.transparent],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withAlpha(20)),
+      ),
       child: Row(children: [
         Container(
-          width: 40, height: 40,
-          decoration: BoxDecoration(color: color.withAlpha(20), borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, size: 18, color: color),
+          width: 44, height: 44,
+          decoration: BoxDecoration(
+            color: color.withAlpha(20),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withAlpha(30)),
+          ),
+          child: Icon(icon, size: 20, color: color),
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.muted)),
         ])),
-        Text(time, style: const TextStyle(fontSize: 11, color: Color(0xFF444448))),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(color: const Color(0xFF1C1C22), borderRadius: BorderRadius.circular(6)),
+          child: Text(time, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.muted)),
+        ),
       ]),
     );
   }

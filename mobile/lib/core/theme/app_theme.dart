@@ -127,22 +127,45 @@ class StatBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = valueColor ?? Colors.white;
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.darkBorder),
+        gradient: LinearGradient(
+          colors: [effectiveColor.withAlpha(15), Colors.transparent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: effectiveColor.withAlpha(30)),
+        boxShadow: [
+          BoxShadow(color: effectiveColor.withAlpha(10), blurRadius: 12, offset: const Offset(0, 4)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 18, color: AppTheme.muted),
-            const SizedBox(height: 8),
-          ],
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.muted, letterSpacing: 0.3)),
-          const SizedBox(height: 4),
+          Row(
+            children: [
+              if (icon != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: effectiveColor.withAlpha(20),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 16, color: effectiveColor),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.muted, letterSpacing: 0.2)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -150,10 +173,10 @@ class StatBox extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text(value, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700, color: valueColor ?? Colors.white)),
+                Text(value, style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: effectiveColor)),
                 if (suffix != null) ...[
-                  const SizedBox(width: 3),
-                  Text(suffix!, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: (valueColor ?? Colors.white).withAlpha(120))),
+                  const SizedBox(width: 4),
+                  Text(suffix!, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: effectiveColor.withAlpha(150))),
                 ],
               ],
             ),
