@@ -2,6 +2,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { Home, LayoutDashboard, Leaf, Shield, LogOut, Hexagon, Store } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import AnimatedBackground from './AnimatedBackground'
 
 export default function Layout() {
   const user = useAuthStore((s) => s.user)
@@ -35,17 +36,8 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       
-      {/* Background */}
-      <div className="honeycomb-bg" />
-      <div className="fixed inset-0 z-[-1] pointer-events-none">
-        <div className="glow-orb glow-orb-1" />
-        <div className="glow-orb glow-orb-2" />
-        <div className="glow-orb glow-orb-3" />
-        <div className="grid-lines" />
-        <div className="particles">
-          {Array.from({ length: 15 }).map((_, i) => <div key={i} className="particle" />)}
-        </div>
-      </div>
+      {/* Canvas Background */}
+      <AnimatedBackground />
 
       {/* NAVBAR */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-3 bg-[#050507]/80 backdrop-blur-2xl border-b border-white/5 shadow-2xl' : 'py-5 bg-transparent'}`}>
