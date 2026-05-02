@@ -11,6 +11,7 @@ class AuthProvider with ChangeNotifier {
   String _phoneNumber = '';
   String _fullName = '';
   bool _isVerified = false;
+  int _balance = 0;
   final Dio _dio = Dio();
 
   bool get isAuthenticated => _isAuthenticated;
@@ -18,6 +19,7 @@ class AuthProvider with ChangeNotifier {
   String get phoneNumber => _phoneNumber;
   String get fullName => _fullName;
   bool get isVerified => _isVerified;
+  int get balance => _balance;
 
   Future<void> checkAuth() async {
     final prefs = await SharedPreferences.getInstance();
@@ -25,6 +27,7 @@ class AuthProvider with ChangeNotifier {
     _isVerified = prefs.getBool('isVerified') ?? false;
     _phoneNumber = prefs.getString('phoneNumber') ?? '';
     _fullName = prefs.getString('fullName') ?? '';
+    _balance = prefs.getInt('balance') ?? 0;
     final roleStr = prefs.getString('role');
     if (roleStr == 'INVESTOR') _role = UserRole.INVESTOR;
     else if (roleStr == 'BEEKEEPER') _role = UserRole.BEEKEEPER;
@@ -76,12 +79,29 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> addBalance(int amount) async {
+    _balance += amount;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('balance', _balance);
+    notifyListeners();
+  }
+
+  Future<bool> deductBalance(int amount) async {
+    if (_balance < amount) return false;
+    _balance -= amount;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('balance', _balance);
+    notifyListeners();
+    return true;
+  }
+
   Future<void> logout() async {
     _isAuthenticated = false;
     _role = UserRole.NONE;
     _isVerified = false;
     _fullName = '';
     _phoneNumber = '';
+    _balance = 0;
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     notifyListeners();

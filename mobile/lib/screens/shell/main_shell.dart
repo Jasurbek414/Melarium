@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/animated_bg.dart';
 import '../home/home_screen.dart';
 import '../market/market_screen.dart';
 import '../portfolio/portfolio_screen.dart';
@@ -77,9 +78,11 @@ class _MainShellState extends State<MainShell> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Scaffold(
-        body: SafeArea(
-          child: Column(
+      child: AnimatedBg(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            child: Column(
             children: [
               // ── Top Bar ──
               Padding(

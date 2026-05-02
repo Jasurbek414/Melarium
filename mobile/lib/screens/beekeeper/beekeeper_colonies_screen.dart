@@ -1,110 +1,198 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../providers/colony_provider.dart';
 import '../../core/theme/app_theme.dart';
 
-class BeekeeperColoniesScreen extends StatelessWidget {
+class BeekeeperColoniesScreen extends StatefulWidget {
   const BeekeeperColoniesScreen({Key? key}) : super(key: key);
 
   @override
+  State<BeekeeperColoniesScreen> createState() => _BeekeeperColoniesScreenState();
+}
+
+class _BeekeeperColoniesScreenState extends State<BeekeeperColoniesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ColonyProvider>().fetchColonies();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-      children: [
-        GlassCard(
-          onTap: () {},
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(
-              width: 32, height: 32,
-              decoration: BoxDecoration(color: AppTheme.honey.withAlpha(25), borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.add_rounded, size: 18, color: AppTheme.honey),
-            ),
+    final provider = context.watch<ColonyProvider>();
+
+    return RefreshIndicator(
+      onRefresh: () => provider.fetchColonies(),
+      color: AppTheme.honey,
+      backgroundColor: AppTheme.darkCard,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        children: [
+          GlassCard(
+            onTap: () => _showAddColonyModal(context),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Container(
+                width: 32, height: 32,
+                decoration: BoxDecoration(color: AppTheme.honey.withAlpha(25), borderRadius: BorderRadius.circular(8)),
+                child: const Icon(Icons.add_rounded, size: 18, color: AppTheme.honey),
+              ),
+              const SizedBox(width: 12),
+              Text("Yangi koloniya qo'shish", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.honey)),
+            ]),
+          ),
+          if (provider.isLoading && provider.colonies.isEmpty)
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator(color: AppTheme.honey)))
+          else if (provider.colonies.isEmpty)
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: Text("Hozircha koloniyalar yo'q", style: TextStyle(color: AppTheme.muted))))
+          else
+            ...provider.colonies.map((c) => _ColonyManageCard(colony: c)),
+        ],
+      ),
+    );
+  }
+
+  void _showAddColonyModal(BuildContext context) {
+    final nameCtrl = TextEditingController();
+    final locCtrl = TextEditingController();
+    final priceCtrl = TextEditingController();
+    final roiCtrl = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.darkCard,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF333338), borderRadius: BorderRadius.circular(2)))),
+          const SizedBox(height: 20),
+          Text("Yangi koloniya", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 20),
+          TextField(controller: nameCtrl, decoration: const InputDecoration(hintText: 'Koloniya nomi')),
+          const SizedBox(height: 12),
+          TextField(controller: locCtrl, decoration: const InputDecoration(hintText: 'Manzil (Viloyat/Tuman)')),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(child: TextField(controller: priceCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Narxi (UZS)'))),
             const SizedBox(width: 12),
-            Text("Yangi koloniya qo'shish", style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.honey)),
+            Expanded(child: TextField(controller: roiCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Kutilgan ROI (%)'))),
           ]),
-        ),
-        ...List.generate(3, (i) => _ColonyManageCard(index: i)),
-      ],
+          const SizedBox(height: 24),
+          MelButton(
+            onPressed: () {
+              if (nameCtrl.text.isNotEmpty && locCtrl.text.isNotEmpty) {
+                final newColony = Colony(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: nameCtrl.text,
+                  location: locCtrl.text,
+                  price: int.tryParse(priceCtrl.text) ?? 1000000,
+                  expectedRoi: double.tryParse(roiCtrl.text) ?? 15.0,
+                  fundedPercentage: 0,
+                  status: 'Kutish',
+                  temperature: 30.0,
+                  humidity: 50.0,
+                  weight: 0.0,
+                  investorCount: 0,
+                );
+                context.read<ColonyProvider>().addColony(newColony);
+                Navigator.pop(context);
+              }
+            },
+            child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("Qo'shish"), SizedBox(width: 8), Icon(Icons.add_rounded, size: 18)]),
+          ),
+        ]),
+      ),
     );
   }
 }
 
 class _ColonyManageCard extends StatelessWidget {
-  final int index;
-  const _ColonyManageCard({required this.index});
+  final Colony colony;
+  const _ColonyManageCard({required this.colony});
 
   @override
   Widget build(BuildContext context) {
-    final names = ['Toshkent Oltin Asalxona', "Bo'stonliq Tog' Asalxonasi", 'Samarqand Vodiysi'];
-    final statuses = ['Faol', "Yig'im", 'Faol'];
-    final statusColors = [AppTheme.green, AppTheme.blue, AppTheme.green];
-    final temps = ['34.2°C', '32.8°C', '35.1°C'];
-    final humidity = ['62%', '58%', '65%'];
-    final weights = ['45.2 kg', '38.7 kg', '52.1 kg'];
+    final statusColors = {'Sotuvda': AppTheme.green, 'Faol': AppTheme.honey, "Yig'im": AppTheme.blue, 'Kutish': AppTheme.muted};
+    final color = statusColors[colony.status] ?? AppTheme.muted;
+    final String priceFmt = colony.price.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ');
 
-    return GlassCard(
-      margin: const EdgeInsets.only(bottom: 16),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.darkBorder),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Expanded(child: Text(names[index], style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.w700))),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(color: statusColors[index].withAlpha(25), borderRadius: BorderRadius.circular(8), border: Border.all(color: statusColors[index].withAlpha(50))),
-            child: Text(statuses[index], style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColors[index])),
-          ),
-        ]),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: const Color(0xFF0D0D11), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.darkBorder)),
+        Padding(
+          padding: const EdgeInsets.all(16),
           child: Row(children: [
-            _sensorTile(Icons.thermostat_outlined, 'Harorat', temps[index], AppTheme.honey),
-            Container(width: 1, height: 36, color: AppTheme.darkBorder, margin: const EdgeInsets.symmetric(horizontal: 8)),
-            _sensorTile(Icons.water_drop_outlined, 'Namlik', humidity[index], AppTheme.blue),
-            Container(width: 1, height: 36, color: AppTheme.darkBorder, margin: const EdgeInsets.symmetric(horizontal: 8)),
-            _sensorTile(Icons.monitor_weight_outlined, 'Vazn', weights[index], AppTheme.green),
+            // Icon
+            Container(
+              width: 44, height: 44,
+              decoration: BoxDecoration(gradient: LinearGradient(colors: [AppTheme.honey.withAlpha(20), Colors.transparent]), borderRadius: BorderRadius.circular(12)),
+              child: const Center(child: Text('🐝', style: TextStyle(fontSize: 22))),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(colony.name, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 2),
+              Row(children: [
+                Icon(Icons.location_on_outlined, size: 12, color: AppTheme.muted),
+                const SizedBox(width: 4),
+                Text(colony.location, style: const TextStyle(fontSize: 11, color: AppTheme.muted)),
+              ]),
+            ])),
+            // Menu
+            PopupMenuButton<String>(
+              color: AppTheme.darkCard,
+              icon: const Icon(Icons.more_vert_rounded, color: AppTheme.muted, size: 20),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: AppTheme.darkBorder)),
+              onSelected: (val) {
+                if (val == 'delete') context.read<ColonyProvider>().deleteColony(colony.id);
+                // tahrirlash qismi...
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 18), SizedBox(width: 8), Text('Tahrirlash', style: TextStyle(fontSize: 14))])),
+                PopupMenuItem(value: 'delete', child: Row(children: [const Icon(Icons.delete_outline_rounded, size: 18, color: AppTheme.red), const SizedBox(width: 8), Text("O'chirish", style: TextStyle(fontSize: 14, color: AppTheme.red))])),
+              ],
+            ),
           ]),
         ),
-        const SizedBox(height: 16),
-        Row(children: [
-          _infoChip(Icons.people_outline_rounded, '${(index + 1) * 4} investor'),
-          const SizedBox(width: 10),
-          _infoChip(Icons.pie_chart_outline_rounded, '${65 + index * 10}% moliya'),
-        ]),
-        const SizedBox(height: 16),
-        Row(children: [
-          Expanded(child: MelButton(outlined: true, onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.edit_outlined, size: 16), SizedBox(width: 6), Text('Tahrirlash')]))),
-          const SizedBox(width: 10),
-          Expanded(child: MelButton(onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.description_outlined, size: 16), SizedBox(width: 6), Text('Hisobot')]))),
-        ]),
+        const Divider(height: 1, color: AppTheme.darkBorder),
+        // IoT data
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(children: [
+            _miniStat(Icons.thermostat_outlined, '${colony.temperature}°C', AppTheme.honey),
+            _miniStat(Icons.water_drop_outlined, '${colony.humidity}%', AppTheme.blue),
+            _miniStat(Icons.monitor_weight_outlined, '${colony.weight} kg', AppTheme.green),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(color: color.withAlpha(15), borderRadius: BorderRadius.circular(6)),
+              child: Text(colony.status, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+            ),
+          ]),
+        ),
       ]),
     );
   }
 
-  Widget _sensorTile(IconData icon, String label, String value, Color color) {
-    return Expanded(
-      child: Column(children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(height: 6),
-        Text(value, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 10, color: AppTheme.muted)),
+  Widget _miniStat(IconData icon, String val, Color c) {
+    return Container(
+      margin: const EdgeInsets.only(right: 12),
+      child: Row(children: [
+        Icon(icon, size: 14, color: c),
+        const SizedBox(width: 4),
+        Text(val, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
       ]),
-    );
-  }
-
-  Widget _infoChip(IconData icon, String text) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(color: const Color(0xFF0D0D11), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.darkBorder)),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icon, size: 14, color: AppTheme.muted),
-          const SizedBox(width: 6),
-          Text(text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppTheme.muted)),
-        ]),
-      ),
     );
   }
 }

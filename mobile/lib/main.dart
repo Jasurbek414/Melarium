@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/colony_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/shell/main_shell.dart';
 
@@ -14,6 +15,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
+        ChangeNotifierProvider(create: (_) => ColonyProvider()),
       ],
       child: const MelariumApp(),
     ),
