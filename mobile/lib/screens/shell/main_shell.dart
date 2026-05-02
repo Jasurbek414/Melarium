@@ -108,24 +108,32 @@ class _MainShellState extends State<MainShell> {
                             child: const Icon(Icons.check_rounded, size: 14, color: AppTheme.green),
                           ),
                         // Balance Pill
-                        GestureDetector(
-                          onTap: () => _showTopUp(context, context.read<AuthProvider>()),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppTheme.darkCard,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AppTheme.honey.withAlpha(50)),
-                            ),
-                            child: Row(children: [
-                              const Icon(Icons.account_balance_wallet_outlined, size: 14, color: AppTheme.honey),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
-                                style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w700),
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () => _showTopUp(context, context.read<AuthProvider>()),
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.darkCard,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: AppTheme.honey.withAlpha(50)),
                               ),
-                            ]),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.account_balance_wallet_outlined, size: 14, color: AppTheme.honey),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
+                                      style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w700),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                         // Role Badge
