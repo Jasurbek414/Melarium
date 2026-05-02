@@ -44,6 +44,130 @@
   }
 }
 
+/* ─── HONEYCOMB BACKGROUND ─── */
+.honeycomb-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.honeycomb-bg::before {
+  content: '';
+  position: absolute;
+  inset: -50px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zM28 100L0 84V50l28-16 28 16v34L28 100z' fill='none' stroke='%23EEB012' stroke-width='0.4' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 56px 100px;
+  animation: honeycombDrift 60s linear infinite;
+}
+
+.honeycomb-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 0%, #050507 70%);
+}
+
+@keyframes honeycombDrift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(56px, 100px); }
+}
+
+/* ─── GLOW ORBS ─── */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.glow-orb-1 {
+  width: 600px; height: 600px;
+  top: -10%; left: -5%;
+  background: radial-gradient(circle, rgba(238,176,18,0.08) 0%, transparent 70%);
+  animation: orbFloat1 15s ease-in-out infinite;
+}
+
+.glow-orb-2 {
+  width: 500px; height: 500px;
+  bottom: 10%; right: -5%;
+  background: radial-gradient(circle, rgba(203,133,4,0.06) 0%, transparent 70%);
+  animation: orbFloat2 20s ease-in-out infinite;
+}
+
+.glow-orb-3 {
+  width: 400px; height: 400px;
+  top: 40%; left: 40%;
+  background: radial-gradient(circle, rgba(255,207,51,0.04) 0%, transparent 70%);
+  animation: orbFloat3 18s ease-in-out infinite;
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(60px, -40px) scale(1.1); }
+  66% { transform: translate(-30px, 50px) scale(0.95); }
+}
+
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, -60px) scale(1.15); }
+}
+
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.1); }
+}
+
+/* ─── FLOATING PARTICLES ─── */
+.particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(238, 176, 18, 0.3);
+  border-radius: 50%;
+  animation: particleRise linear infinite;
+}
+
+.particle:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; }
+.particle:nth-child(2) { left: 25%; animation-duration: 15s; animation-delay: 2s; }
+.particle:nth-child(3) { left: 40%; animation-duration: 10s; animation-delay: 4s; width: 3px; height: 3px; }
+.particle:nth-child(4) { left: 55%; animation-duration: 18s; animation-delay: 1s; }
+.particle:nth-child(5) { left: 70%; animation-duration: 14s; animation-delay: 3s; }
+.particle:nth-child(6) { left: 85%; animation-duration: 16s; animation-delay: 5s; width: 3px; height: 3px; }
+.particle:nth-child(7) { left: 15%; animation-duration: 20s; animation-delay: 6s; }
+.particle:nth-child(8) { left: 60%; animation-duration: 11s; animation-delay: 7s; }
+.particle:nth-child(9) { left: 90%; animation-duration: 13s; animation-delay: 0.5s; width: 3px; height: 3px; }
+.particle:nth-child(10) { left: 35%; animation-duration: 17s; animation-delay: 8s; }
+
+@keyframes particleRise {
+  0% { bottom: -10px; opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.2; }
+  100% { bottom: 110vh; opacity: 0; }
+}
+
+/* ─── GRID LINES ─── */
+.grid-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(238,176,18,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,176,18,0.015) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

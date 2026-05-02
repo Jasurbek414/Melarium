@@ -36,10 +36,15 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       
       {/* Background */}
+      <div className="honeycomb-bg" />
       <div className="fixed inset-0 z-[-1] pointer-events-none">
-        <div className="absolute inset-0 bg-[#050507]" />
-        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-honey-500/[0.03] blur-[120px] mix-blend-screen animate-blob" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[30vw] h-[30vw] rounded-full bg-honey-600/[0.02] blur-[100px] mix-blend-screen animate-blob" style={{ animationDelay: '5s' }} />
+        <div className="glow-orb glow-orb-1" />
+        <div className="glow-orb glow-orb-2" />
+        <div className="glow-orb glow-orb-3" />
+        <div className="grid-lines" />
+        <div className="particles">
+          {Array.from({ length: 10 }).map((_, i) => <div key={i} className="particle" />)}
+        </div>
       </div>
 
       {/* NAVBAR */}
