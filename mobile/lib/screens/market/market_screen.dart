@@ -199,6 +199,30 @@ class _CompactColonyCard extends StatelessWidget {
             const SizedBox(width: 4),
             Text('${colony['funded']}%', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.muted)),
           ]),
+          if (colony['status'] == 'Sotuvda') ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 36,
+              child: MelButton(
+                padding: const EdgeInsets.symmetric(vertical: 0),
+                onPressed: () async {
+                  if (!isVerified) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Avval verifikatsiyadan o\'ting!'), backgroundColor: AppTheme.red));
+                    return;
+                  }
+                  final price = colony['price'] as int;
+                  final success = await context.read<AuthProvider>().deductBalance(price);
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Muvaffaqiyatli investitsiya qilindi!'), backgroundColor: AppTheme.green));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Balansda mablag\' yetarli emas!'), backgroundColor: AppTheme.red));
+                  }
+                },
+                child: const Center(child: Text('Investitsiya', style: TextStyle(fontSize: 12))),
+              ),
+            ),
+          ],
         ])),
       ]),
     );

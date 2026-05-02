@@ -55,8 +55,9 @@ class MelButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Widget child;
   final bool outlined;
+  final EdgeInsetsGeometry? padding;
 
-  const MelButton({Key? key, required this.onPressed, required this.child, this.outlined = false}) : super(key: key);
+  const MelButton({Key? key, required this.onPressed, required this.child, this.outlined = false, this.padding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +66,7 @@ class MelButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: outlined ? Colors.transparent : (disabled ? AppTheme.honey.withAlpha(80) : AppTheme.honey),
           borderRadius: BorderRadius.circular(14),
