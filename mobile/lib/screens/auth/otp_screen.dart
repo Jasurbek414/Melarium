@@ -19,9 +19,32 @@ class _OtpScreenState extends State<OtpScreen> {
   int _selectedRoleIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Listen for key events to handle backspace on empty fields
+    for (int i = 0; i < 6; i++) {
+      _focusNodes[i].onKeyEvent = (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.backspace &&
+            _controllers[i].text.isEmpty &&
+            i > 0) {
+          _controllers[i - 1].clear();
+          _focusNodes[i - 1].requestFocus();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      };
+    }
+  }
+
+  @override
   void dispose() {
-    for (var c in _controllers) c.dispose();
-    for (var f in _focusNodes) f.dispose();
+    for (var c in _controllers) {
+      c.dispose();
+    }
+    for (var f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -35,7 +58,9 @@ class _OtpScreenState extends State<OtpScreen> {
       await context.read<AuthProvider>().verifyOtp(_otp, role);
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xatolik: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xatolik: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -46,32 +71,44 @@ class _OtpScreenState extends State<OtpScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
+                // Back button
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Container(
                     width: 44, height: 44,
-                    decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.darkBorder)),
+                    decoration: BoxDecoration(
+                      color: AppTheme.darkCard,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.darkBorder),
+                    ),
                     child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
                   ),
                 ),
                 const SizedBox(height: 36),
+
+                // Title
                 Text('Tasdiqlash', style: GoogleFonts.outfit(fontSize: 34, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
-                const Text('Telefon raqamingizga yuborilgan 6 xonali kodni kiriting.', style: TextStyle(fontSize: 15, color: AppTheme.muted)),
-                const SizedBox(height: 36),
+                const Text(
+                  'Telefon raqamingizga yuborilgan\n6 xonali kodni kiriting.',
+                  style: TextStyle(fontSize: 15, color: AppTheme.muted, height: 1.5),
+                ),
+                const SizedBox(height: 32),
 
                 // ── OTP Boxes ──
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(6, (i) => SizedBox(
-                    width: 48, height: 56,
+                    width: 48,
+                    height: 56,
                     child: TextField(
                       controller: _controllers[i],
                       focusNode: _focusNodes[i],
@@ -84,47 +121,69 @@ class _OtpScreenState extends State<OtpScreen> {
                         contentPadding: EdgeInsets.zero,
                         filled: true,
                         fillColor: AppTheme.darkCard,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.darkBorder)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.darkBorder)),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF33333A), width: 1.5)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.darkBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.darkBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Color(0xFF33333A), width: 1.5),
+                        ),
                       ),
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: (val) {
-                        if (val.isNotEmpty && i < 5) _focusNodes[i + 1].requestFocus();
-                        if (val.isEmpty && i > 0) _focusNodes[i - 1].requestFocus();
+                        if (val.isNotEmpty && i < 5) {
+                          _focusNodes[i + 1].requestFocus();
+                        }
                       },
                     ),
                   )),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
                 // ── Role Toggle ──
                 Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.darkBorder)),
+                  decoration: BoxDecoration(
+                    color: AppTheme.darkCard,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppTheme.darkBorder),
+                  ),
                   child: Row(children: [
                     _roleTab('Investor', 0),
                     _roleTab('Asalarichi', 1),
                   ]),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
+                // ── Button ──
                 MelButton(
                   onPressed: _isLoading ? null : _verify,
                   child: _isLoading
                       ? const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2.5)))
                       : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text('Tasdiqlash'), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18),
+                          Text('Tasdiqlash'),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward_rounded, size: 18),
                         ]),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+
+                // ── Resend ──
                 Center(
                   child: GestureDetector(
                     onTap: () {},
-                    child: const Text('Kodni qayta yuborish', style: TextStyle(color: AppTheme.honey, fontWeight: FontWeight.w600, fontSize: 14)),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text('Kodni qayta yuborish', style: TextStyle(color: AppTheme.honey, fontWeight: FontWeight.w600, fontSize: 14)),
+                    ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -145,7 +204,11 @@ class _OtpScreenState extends State<OtpScreen> {
             color: isActive ? const Color(0xFF1E1E25) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Text(label, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isActive ? AppTheme.honey : AppTheme.muted)),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: isActive ? AppTheme.honey : AppTheme.muted),
+          ),
         ),
       ),
     );
