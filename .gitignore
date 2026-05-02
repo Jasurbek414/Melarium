@@ -1,0 +1,24 @@
+# Git — sensitive files
+.env
+*.env.local
+
+# Build outputs
+bekent/target/
+front/node_modules/
+front/dist/
+
+# Docker volumes
+postgres_data/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

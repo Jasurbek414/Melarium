@@ -1,0 +1,99 @@
+# ══════════════════════════════════════════════════════════════
+# MELARIUM — Full Stack Docker Compose
+# Services: PostgreSQL · Spring Boot Backend · React Frontend
+# ══════════════════════════════════════════════════════════════
+
+services:
+
+  # ── POSTGRESQL ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: melarium-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-melarium_db}
+      POSTGRES_USER:     ${POSTGRES_USER:-melarium_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-melarium_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-melarium_user} -d ${POSTGRES_DB:-melarium_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - melarium-net
+
+  # ── SPRING BOOT BACKEND ────────────────────────────────────
+  backend:
+    build:
+      context: ./bekent
+      dockerfile: Dockerfile
+    container_name: melarium-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      SPRING_DATASOURCE_URL:      jdbc:postgresql://postgres:5432/${POSTGRES_DB:-melarium_db}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-melarium_user}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-melarium_pass}
+
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-mElaRiUm-5uPeR-5eCrEt-K3y-2024-AgRoInVeStMeNtPlAtFoRm}
+
+      # Email (Gmail SMTP)
+      MAIL_HOST:     ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT:     ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-azizbekmirzavaliyev31@gmail.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-iwcaugykkssrrtka}
+
+      # OTP mode: false = real email, true = return in response
+      OTP_SIMULATE: ${OTP_SIMULATE:-false}
+
+      # Server
+      SERVER_PORT: 8080
+
+      # Spring Profiles
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8090:8080"
+    networks:
+      - melarium-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/api/colonies?page=0&size=1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s
+      retries: 3
+
+  # ── REACT FRONTEND (Nginx) ─────────────────────────────────
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: melarium-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8091:80"
+    networks:
+      - melarium-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+# ── VOLUMES ────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+
+# ── NETWORKS ───────────────────────────────────────────────
+networks:
+  melarium-net:
+    driver: bridge
