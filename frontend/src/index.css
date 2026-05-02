@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#050507] text-white font-sans antialiased overflow-x-hidden selection:bg-honey-500/30 selection:text-honey-400;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/[0.02] backdrop-blur-[24px] border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+  
+  .glass-card {
+    @apply glass-panel rounded-3xl hover:-translate-y-2 hover:border-honey-500/30 hover:shadow-[0_20px_40px_rgba(238,176,18,0.15)] transition-all duration-500 relative overflow-hidden;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent;
+  }
+  
+  .text-honey-gradient {
+    @apply bg-gradient-to-r from-honey-400 to-honey-600 bg-clip-text text-transparent;
+  }
+  
+  .btn-premium {
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-black bg-gradient-to-r from-honey-400 to-honey-600 hover:from-honey-300 hover:to-honey-500 transition-all duration-300 shadow-[0_0_20px_rgba(238,176,18,0.3)] hover:shadow-[0_0_30px_rgba(238,176,18,0.5)] hover:-translate-y-0.5 overflow-hidden;
+  }
+  
+  .btn-premium::after {
+    content: '';
+    @apply absolute top-0 -left-[100%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-all duration-500;
+  }
+  
+  .btn-premium:hover::after {
+    @apply left-[100%];
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-[#050507];
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}

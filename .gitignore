@@ -1,24 +1,35 @@
-# Git — sensitive files
-.env
-*.env.local
+# Dependencies
+node_modules/
+.dart_tool/
+.packages
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
 
-# Build outputs
-bekent/target/
-front/node_modules/
-front/dist/
+# Builds
+build/
+dist/
+target/
+*.apk
+*.aab
+*.exe
 
-# Docker volumes
-postgres_data/
-
-# IDE
+# IDEs / OS
 .idea/
-*.iml
 .vscode/
-
-# OS
+*.iml
 .DS_Store
 Thumbs.db
+*.swp
 
-# Logs
-*.log
-logs/
+# Environment variables
+.env
+.env.*
+*.local
+
+# Project specific
+backend/target/
+frontend/dist/
+frontend/node_modules/
+mobile/build/
+mobile/.dart_tool/

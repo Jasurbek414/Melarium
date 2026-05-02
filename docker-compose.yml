@@ -27,7 +27,7 @@ services:
   # ── SPRING BOOT BACKEND ────────────────────────────────────
   backend:
     build:
-      context: ./bekent
+      context: ./backend
       dockerfile: Dockerfile
     container_name: melarium-backend
     restart: unless-stopped
@@ -71,7 +71,7 @@ services:
   # ── REACT FRONTEND (Nginx) ─────────────────────────────────
   frontend:
     build:
-      context: ./front
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: melarium-frontend
     restart: unless-stopped

@@ -1,25 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'app/router.dart';
-import 'app/theme.dart';
+import 'package:provider/provider.dart';
+import 'core/theme/app_theme.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/shell/main_shell.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  await Hive.openBox('auth');
-  runApp(const MelariumApp());
+  final authProvider = AuthProvider();
+  await authProvider.checkAuth();
+  
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: authProvider),
+      ],
+      child: const MelariumApp(),
+    ),
+  );
 }
 
 class MelariumApp extends StatelessWidget {
-  const MelariumApp({super.key});
+  const MelariumApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'MELARIUM',
-      theme: MelariumTheme.dark,
-      routerConfig: appRouter,
+    return MaterialApp(
+      title: 'Melarium',
+      theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
+      home: Consumer<AuthProvider>(
+        builder: (context, auth, child) {
+          if (!auth.isAuthenticated) {
+            return const LoginScreen();
+          }
+          return const MainShell();
+        },
+      ),
     );
   }
 }
