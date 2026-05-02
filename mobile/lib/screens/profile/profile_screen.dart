@@ -77,43 +77,49 @@ class ProfileScreen extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.darkCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.honey.withAlpha(50)),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF222226), Color(0xFF15151A)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.honey.withAlpha(30)),
             boxShadow: [
-              BoxShadow(color: AppTheme.honey.withAlpha(10), blurRadius: 20, spreadRadius: -5),
+              BoxShadow(color: Colors.black.withAlpha(40), blurRadius: 15, offset: const Offset(0, 8)),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              const Text('Mavjud balans', style: TextStyle(fontSize: 14, color: AppTheme.muted, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              Text(
-                '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
-                style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.honey),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.account_balance_wallet_rounded, size: 16, color: AppTheme.muted),
+                        const SizedBox(width: 6),
+                        const Text('Mavjud balans', style: TextStyle(fontSize: 13, color: AppTheme.muted, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
+                      style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.honey),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+              Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.honey.withAlpha(20),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.add_rounded, color: AppTheme.honey),
                   onPressed: () => showTopUpSheet(context, auth),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.honey.withAlpha(20),
-                    foregroundColor: AppTheme.honey,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: AppTheme.honey.withAlpha(50)),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_circle_outline_rounded, size: 18),
-                      SizedBox(width: 8),
-                      Text("Balansni to'ldirish", style: TextStyle(fontWeight: FontWeight.w700)),
-                    ],
-                  ),
+                  tooltip: "Balansni to'ldirish",
                 ),
               ),
             ],

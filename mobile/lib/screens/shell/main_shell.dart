@@ -121,20 +121,54 @@ class _MainShellState extends State<MainShell> {
                               onTap: () {
                                 showDialog(
                                   context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    backgroundColor: AppTheme.darkCard,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    title: Text("Joriy balans", style: GoogleFonts.outfit(color: Colors.white)),
-                                    content: Text(
-                                      '${context.read<AuthProvider>().balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
-                                      style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.honey),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(ctx),
-                                        child: const Text("Yopish", style: TextStyle(color: AppTheme.honey)),
+                                  builder: (ctx) => Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.darkCard,
+                                        borderRadius: BorderRadius.circular(24),
+                                        border: Border.all(color: AppTheme.honey.withAlpha(30)),
+                                        boxShadow: [
+                                          BoxShadow(color: AppTheme.honey.withAlpha(20), blurRadius: 30, spreadRadius: -5),
+                                        ],
                                       ),
-                                    ],
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.honey.withAlpha(20),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.honey, size: 28),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          const Text('Joriy balans', style: TextStyle(fontSize: 15, color: AppTheme.muted, fontWeight: FontWeight.w600)),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            '${context.read<AuthProvider>().balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
+                                            style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w800, color: AppTheme.honey),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(height: 24),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              onPressed: () => Navigator.pop(ctx),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppTheme.darkBg,
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                              ),
+                                              child: const Text('Yopish', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 );
                               },
