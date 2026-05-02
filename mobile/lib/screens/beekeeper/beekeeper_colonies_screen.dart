@@ -10,7 +10,6 @@ class BeekeeperColoniesScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       children: [
-        // Add button
         GlassCard(
           onTap: () {},
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
@@ -56,8 +55,6 @@ class _ColonyManageCard extends StatelessWidget {
           ),
         ]),
         const SizedBox(height: 16),
-
-        // IoT Sensors
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(color: const Color(0xFF0D0D11), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.darkBorder)),
@@ -70,18 +67,16 @@ class _ColonyManageCard extends StatelessWidget {
           ]),
         ),
         const SizedBox(height: 16),
-
         Row(children: [
           _infoChip(Icons.people_outline_rounded, '${(index + 1) * 4} investor'),
           const SizedBox(width: 10),
           _infoChip(Icons.pie_chart_outline_rounded, '${65 + index * 10}% moliya'),
         ]),
         const SizedBox(height: 16),
-
         Row(children: [
-          Expanded(child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.edit_outlined, size: 16), label: const Text('Tahrirlash'))),
+          Expanded(child: MelButton(outlined: true, onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.edit_outlined, size: 16), SizedBox(width: 6), Text('Tahrirlash')]))),
           const SizedBox(width: 10),
-          Expanded(child: ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.description_outlined, size: 16), label: const Text('Hisobot'))),
+          Expanded(child: MelButton(onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.description_outlined, size: 16), SizedBox(width: 6), Text('Hisobot')]))),
         ]),
       ]),
     );

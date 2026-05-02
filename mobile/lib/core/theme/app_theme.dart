@@ -34,30 +34,6 @@ class AppTheme {
         foregroundColor: Colors.white,
         titleTextStyle: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.disabled)) return honey.withAlpha(100);
-            return honey;
-          }),
-          foregroundColor: WidgetStateProperty.all(Colors.black),
-          shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-          padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
-          textStyle: WidgetStateProperty.all(GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
-          elevation: WidgetStateProperty.all(0),
-          overlayColor: WidgetStateProperty.all(Colors.black.withAlpha(20)),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: darkBorder),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
-          elevation: 0,
-        ),
-      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF15151A),
@@ -66,6 +42,46 @@ class AppTheme {
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF33333A), width: 1.5)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         hintStyle: const TextStyle(color: Color(0xFF3A3A44), fontSize: 15),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  CUSTOM BUTTON — replaces ElevatedButton to avoid
+//  diagonal stripe rendering artifact on some devices
+// ═══════════════════════════════════════════════════════
+class MelButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final Widget child;
+  final bool outlined;
+
+  const MelButton({Key? key, required this.onPressed, required this.child, this.outlined = false}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final disabled = onPressed == null;
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: outlined ? Colors.transparent : (disabled ? AppTheme.honey.withAlpha(80) : AppTheme.honey),
+          borderRadius: BorderRadius.circular(14),
+          border: outlined ? Border.all(color: AppTheme.darkBorder) : null,
+        ),
+        child: DefaultTextStyle(
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: outlined ? Colors.white : Colors.black,
+          ),
+          child: IconTheme(
+            data: IconThemeData(color: outlined ? Colors.white : Colors.black, size: 18),
+            child: child,
+          ),
+        ),
       ),
     );
   }

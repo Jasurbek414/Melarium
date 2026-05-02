@@ -109,21 +109,18 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
                 const SizedBox(height: 28),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _verify,
-                    child: _isLoading
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2.5))
-                        : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('Tasdiqlash'), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18),
-                          ]),
-                  ),
+                MelButton(
+                  onPressed: _isLoading ? null : _verify,
+                  child: _isLoading
+                      ? const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2.5)))
+                      : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Text('Tasdiqlash'), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18),
+                        ]),
                 ),
                 const SizedBox(height: 20),
                 Center(
-                  child: TextButton(
-                    onPressed: () {},
+                  child: GestureDetector(
+                    onTap: () {},
                     child: const Text('Kodni qayta yuborish', style: TextStyle(color: AppTheme.honey, fontWeight: FontWeight.w600, fontSize: 14)),
                   ),
                 ),

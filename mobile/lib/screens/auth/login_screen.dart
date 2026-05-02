@@ -77,24 +77,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       hintText: '+998 90 123 45 67',
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.only(left: 16, right: 12),
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(left: 16, right: 12),
                         child: Icon(Icons.phone_outlined, size: 20, color: AppTheme.muted),
                       ),
                       prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submit,
-                      child: _isLoading
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2.5))
-                          : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                              Text('Davom etish'), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18),
-                            ]),
-                    ),
+                  MelButton(
+                    onPressed: _isLoading ? null : _submit,
+                    child: _isLoading
+                        ? const Center(child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2.5)))
+                        : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Text('Davom etish'), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18),
+                          ]),
                   ),
                   const Spacer(flex: 3),
                   const Center(child: Text('Davom etish orqali Foydalanish shartlariga rozilik bildirasiz', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: Color(0xFF333338)))),

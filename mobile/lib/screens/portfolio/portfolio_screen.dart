@@ -58,9 +58,9 @@ class _InvestmentCard extends StatelessWidget {
         if (statuses[index] != 'Faol') ...[
           const SizedBox(height: 16),
           Row(children: [
-            Expanded(child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.local_shipping_outlined, size: 16), label: const Text('Yetkazish'))),
+            Expanded(child: MelButton(outlined: true, onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.local_shipping_outlined, size: 16), SizedBox(width: 6), Text('Yetkazish')]))),
             const SizedBox(width: 10),
-            Expanded(child: ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.attach_money_rounded, size: 16), label: const Text('Sotish'))),
+            Expanded(child: MelButton(onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.attach_money_rounded, size: 16), SizedBox(width: 6), Text('Sotish')]))),
           ]),
         ],
       ]),

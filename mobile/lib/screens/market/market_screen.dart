@@ -76,7 +76,7 @@ class _ColonyCard extends StatelessWidget {
               child: LinearProgressIndicator(value: shares[index % shares.length] / 100, backgroundColor: const Color(0xFF1C1C22), valueColor: const AlwaysStoppedAnimation(AppTheme.honey), minHeight: 5),
             ),
             const SizedBox(height: 14),
-            SizedBox(width: double.infinity, child: ElevatedButton(onPressed: () {}, child: const Text('Investitsiya qilish'))),
+            MelButton(onPressed: () {}, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text('Investitsiya qilish')])),
           ]),
         ),
       ]),
