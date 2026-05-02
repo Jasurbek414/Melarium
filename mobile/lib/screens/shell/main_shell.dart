@@ -90,65 +90,74 @@ class _MainShellState extends State<MainShell> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(children: [
-                      const Icon(Icons.hexagon_outlined, size: 24, color: AppTheme.honey),
-                      const SizedBox(width: 8),
-                      Text('MELARIUM', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 4)),
-                    ]),
-                    Row(children: [
-                      // Verification badge
-                        if (isVerified)
-                          Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppTheme.green.withAlpha(20),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.check_rounded, size: 14, color: AppTheme.green),
-                          ),
-                        // Balance Pill
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () => _showTopUp(context, context.read<AuthProvider>()),
-                            child: Container(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.hexagon_outlined, size: 24, color: AppTheme.honey),
+                        const SizedBox(width: 8),
+                        Text('MELARIUM', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 4)),
+                      ],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // Verification badge
+                          if (isVerified)
+                            Container(
                               margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: AppTheme.darkCard,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppTheme.honey.withAlpha(50)),
+                                color: AppTheme.green.withAlpha(20),
+                                shape: BoxShape.circle,
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.account_balance_wallet_outlined, size: 14, color: AppTheme.honey),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
-                                      style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w700),
-                                      overflow: TextOverflow.ellipsis,
+                              child: const Icon(Icons.check_rounded, size: 14, color: AppTheme.green),
+                            ),
+                          // Balance Pill
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () => _showTopUp(context, context.read<AuthProvider>()),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.darkCard,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppTheme.honey.withAlpha(50)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.account_balance_wallet_outlined, size: 14, color: AppTheme.honey),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        '${auth.balance.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} UZS',
+                                        style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w700),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // Role Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.honey.withAlpha(20),
-                            borderRadius: BorderRadius.circular(8),
+                          // Role Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppTheme.honey.withAlpha(20),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              isInvestor ? 'Investor' : 'Asalarichi',
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.honey),
+                            ),
                           ),
-                          child: Text(
-                            isInvestor ? 'Investor' : 'Asalarichi',
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.honey),
-                          ),
-                        ),
-                    ]),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
