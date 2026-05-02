@@ -127,7 +127,7 @@ class StatBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
         borderRadius: BorderRadius.circular(16),
@@ -138,17 +138,25 @@ class StatBox extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 18, color: AppTheme.muted),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
           ],
-          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.muted, letterSpacing: 0.5)),
+          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.muted, letterSpacing: 0.3)),
           const SizedBox(height: 4),
-          Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
-            Text(value, style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w700, color: valueColor ?? Colors.white)),
-            if (suffix != null) ...[
-              const SizedBox(width: 4),
-              Text(suffix!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: (valueColor ?? Colors.white).withAlpha(120))),
-            ],
-          ]),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(value, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700, color: valueColor ?? Colors.white)),
+                if (suffix != null) ...[
+                  const SizedBox(width: 3),
+                  Text(suffix!, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: (valueColor ?? Colors.white).withAlpha(120))),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
