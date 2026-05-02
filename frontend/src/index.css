@@ -7,9 +7,13 @@
 @layer base {
   body {
     @apply bg-[#050507] text-white font-sans antialiased overflow-x-hidden selection:bg-honey-500/30 selection:text-honey-400;
+    cursor: none !important;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight;
+  }
+  *, *::before, *::after {
+    cursor: none !important;
   }
 }
 
@@ -44,11 +48,52 @@
   }
 }
 
-/* ─── HONEYCOMB BACKGROUND ─── */
+/* ══════════════════════════════════════════
+   BEE CURSOR
+   ══════════════════════════════════════════ */
+#bee-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 32px; height: 32px;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease-out;
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(238,176,18,0.5));
+}
+
+#bee-cursor.clicking {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+#bee-trail {
+  position: fixed;
+  top: 0; left: 0;
+  width: 20px; height: 20px;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(238,176,18,0.25) 0%, transparent 70%);
+  transition: transform 0.3s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+}
+
+#bee-trail.hovering {
+  width: 50px; height: 50px;
+  background: radial-gradient(circle, rgba(238,176,18,0.15) 0%, transparent 70%);
+}
+
+/* ══════════════════════════════════════════
+   ANIMATED BACKGROUND
+   ══════════════════════════════════════════ */
+
+/* Large honeycomb pattern */
 .honeycomb-bg {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;
   pointer-events: none;
   overflow: hidden;
 }
@@ -56,17 +101,17 @@
 .honeycomb-bg::before {
   content: '';
   position: absolute;
-  inset: -50px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zM28 100L0 84V50l28-16 28 16v34L28 100z' fill='none' stroke='%23EEB012' stroke-width='0.4' opacity='0.06'/%3E%3C/svg%3E");
+  inset: -100px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34L28 66zM28 100L0 84V50l28-16 28 16v34L28 100z' fill='none' stroke='%23EEB012' stroke-width='0.5' opacity='0.12'/%3E%3C/svg%3E");
   background-size: 56px 100px;
-  animation: honeycombDrift 60s linear infinite;
+  animation: honeycombDrift 40s linear infinite;
 }
 
 .honeycomb-bg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, transparent 0%, #050507 70%);
+  background: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, #050507 65%);
 }
 
 @keyframes honeycombDrift {
@@ -78,46 +123,45 @@
 .glow-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(120px);
-  mix-blend-mode: screen;
+  filter: blur(100px);
   pointer-events: none;
 }
 
 .glow-orb-1 {
-  width: 600px; height: 600px;
-  top: -10%; left: -5%;
-  background: radial-gradient(circle, rgba(238,176,18,0.08) 0%, transparent 70%);
-  animation: orbFloat1 15s ease-in-out infinite;
+  width: 700px; height: 700px;
+  top: -15%; left: -10%;
+  background: radial-gradient(circle, rgba(238,176,18,0.15) 0%, transparent 70%);
+  animation: orbFloat1 12s ease-in-out infinite;
 }
 
 .glow-orb-2 {
-  width: 500px; height: 500px;
-  bottom: 10%; right: -5%;
-  background: radial-gradient(circle, rgba(203,133,4,0.06) 0%, transparent 70%);
-  animation: orbFloat2 20s ease-in-out infinite;
+  width: 600px; height: 600px;
+  bottom: -10%; right: -10%;
+  background: radial-gradient(circle, rgba(203,133,4,0.12) 0%, transparent 70%);
+  animation: orbFloat2 16s ease-in-out infinite;
 }
 
 .glow-orb-3 {
-  width: 400px; height: 400px;
-  top: 40%; left: 40%;
-  background: radial-gradient(circle, rgba(255,207,51,0.04) 0%, transparent 70%);
-  animation: orbFloat3 18s ease-in-out infinite;
+  width: 500px; height: 500px;
+  top: 35%; left: 50%;
+  background: radial-gradient(circle, rgba(255,207,51,0.08) 0%, transparent 70%);
+  animation: orbFloat3 14s ease-in-out infinite;
 }
 
 @keyframes orbFloat1 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(60px, -40px) scale(1.1); }
-  66% { transform: translate(-30px, 50px) scale(0.95); }
+  33% { transform: translate(80px, -60px) scale(1.15); }
+  66% { transform: translate(-40px, 60px) scale(0.9); }
 }
 
 @keyframes orbFloat2 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-50px, -60px) scale(1.15); }
+  50% { transform: translate(-70px, -80px) scale(1.2); }
 }
 
 @keyframes orbFloat3 {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(40px, 30px) scale(1.1); }
+  50% { transform: translate(50px, 40px) scale(1.1); }
 }
 
 /* ─── FLOATING PARTICLES ─── */
@@ -130,29 +174,36 @@
 
 .particle {
   position: absolute;
-  width: 2px;
-  height: 2px;
-  background: rgba(238, 176, 18, 0.3);
+  width: 3px;
+  height: 3px;
+  background: rgba(238, 176, 18, 0.5);
   border-radius: 50%;
+  box-shadow: 0 0 6px rgba(238, 176, 18, 0.3);
   animation: particleRise linear infinite;
 }
 
-.particle:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; }
-.particle:nth-child(2) { left: 25%; animation-duration: 15s; animation-delay: 2s; }
-.particle:nth-child(3) { left: 40%; animation-duration: 10s; animation-delay: 4s; width: 3px; height: 3px; }
-.particle:nth-child(4) { left: 55%; animation-duration: 18s; animation-delay: 1s; }
-.particle:nth-child(5) { left: 70%; animation-duration: 14s; animation-delay: 3s; }
-.particle:nth-child(6) { left: 85%; animation-duration: 16s; animation-delay: 5s; width: 3px; height: 3px; }
-.particle:nth-child(7) { left: 15%; animation-duration: 20s; animation-delay: 6s; }
-.particle:nth-child(8) { left: 60%; animation-duration: 11s; animation-delay: 7s; }
-.particle:nth-child(9) { left: 90%; animation-duration: 13s; animation-delay: 0.5s; width: 3px; height: 3px; }
-.particle:nth-child(10) { left: 35%; animation-duration: 17s; animation-delay: 8s; }
+.particle:nth-child(1)  { left: 5%;  animation-duration: 10s; animation-delay: 0s;   width: 4px; height: 4px; }
+.particle:nth-child(2)  { left: 15%; animation-duration: 13s; animation-delay: 1s; }
+.particle:nth-child(3)  { left: 25%; animation-duration: 9s;  animation-delay: 3s;   width: 4px; height: 4px; }
+.particle:nth-child(4)  { left: 35%; animation-duration: 15s; animation-delay: 0.5s; }
+.particle:nth-child(5)  { left: 45%; animation-duration: 11s; animation-delay: 2s;   width: 5px; height: 5px; }
+.particle:nth-child(6)  { left: 55%; animation-duration: 14s; animation-delay: 4s; }
+.particle:nth-child(7)  { left: 65%; animation-duration: 12s; animation-delay: 1.5s;  width: 4px; height: 4px; }
+.particle:nth-child(8)  { left: 75%; animation-duration: 16s; animation-delay: 5s; }
+.particle:nth-child(9)  { left: 85%; animation-duration: 10s; animation-delay: 0.8s;  width: 5px; height: 5px; }
+.particle:nth-child(10) { left: 95%; animation-duration: 13s; animation-delay: 3.5s; }
+.particle:nth-child(11) { left: 10%; animation-duration: 17s; animation-delay: 6s;   width: 4px; height: 4px; }
+.particle:nth-child(12) { left: 30%; animation-duration: 11s; animation-delay: 7s; }
+.particle:nth-child(13) { left: 50%; animation-duration: 14s; animation-delay: 2.5s;  width: 5px; height: 5px; }
+.particle:nth-child(14) { left: 70%; animation-duration: 9s;  animation-delay: 4.5s; }
+.particle:nth-child(15) { left: 90%; animation-duration: 12s; animation-delay: 1.2s;  width: 4px; height: 4px; }
 
 @keyframes particleRise {
-  0% { bottom: -10px; opacity: 0; }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.2; }
-  100% { bottom: 110vh; opacity: 0; }
+  0% { bottom: -10px; opacity: 0; transform: translateX(0); }
+  10% { opacity: 0.8; }
+  50% { transform: translateX(20px); }
+  90% { opacity: 0.3; }
+  100% { bottom: 105vh; opacity: 0; transform: translateX(-20px); }
 }
 
 /* ─── GRID LINES ─── */
@@ -161,11 +212,11 @@
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(238,176,18,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(238,176,18,0.015) 1px, transparent 1px);
+    linear-gradient(rgba(238,176,18,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,176,18,0.025) 1px, transparent 1px);
   background-size: 80px 80px;
-  mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+  mask-image: radial-gradient(ellipse at center, black 0%, transparent 60%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 60%);
 }
 
 /* Custom Scrollbar */

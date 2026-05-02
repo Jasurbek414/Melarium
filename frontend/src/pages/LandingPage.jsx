@@ -22,7 +22,7 @@ export default function LandingPage() {
         <div className="glow-orb glow-orb-3" />
         <div className="grid-lines" />
         <div className="particles">
-          {Array.from({ length: 10 }).map((_, i) => <div key={i} className="particle" />)}
+          {Array.from({ length: 15 }).map((_, i) => <div key={i} className="particle" />)}
         </div>
       </div>
 
