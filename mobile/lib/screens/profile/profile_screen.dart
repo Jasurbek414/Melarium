@@ -10,31 +10,71 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final isVerified = auth.isVerified;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       child: Column(children: [
+        // Avatar
         Container(
           width: 80, height: 80,
-          decoration: const BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [AppTheme.honeyLight, AppTheme.honeyDark])),
-          child: const Center(child: Icon(Icons.person_rounded, size: 40, color: Colors.black)),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(colors: [AppTheme.honeyLight, AppTheme.honeyDark]),
+          ),
+          child: Center(child: Text(
+            auth.fullName.isNotEmpty ? auth.fullName[0].toUpperCase() : '?',
+            style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.black),
+          )),
         ),
         const SizedBox(height: 14),
-        Text(auth.phoneNumber.isEmpty ? 'Foydalanuvchi' : auth.phoneNumber, style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(color: AppTheme.honey.withAlpha(25), borderRadius: BorderRadius.circular(8)),
-          child: Text(
-            auth.role == UserRole.INVESTOR ? 'Investor' : auth.role == UserRole.BEEKEEPER ? 'Asalarichi' : 'Foydalanuvchi',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.honey),
-          ),
+        Text(
+          auth.fullName.isNotEmpty ? auth.fullName : auth.phoneNumber.isNotEmpty ? auth.phoneNumber : 'Foydalanuvchi',
+          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700),
         ),
+        if (auth.phoneNumber.isNotEmpty && auth.fullName.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(auth.phoneNumber, style: const TextStyle(fontSize: 13, color: AppTheme.muted)),
+        ],
+        const SizedBox(height: 8),
+
+        // Role + Verification badges
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(color: AppTheme.honey.withAlpha(25), borderRadius: BorderRadius.circular(8)),
+            child: Text(
+              auth.role == UserRole.INVESTOR ? 'Investor' : auth.role == UserRole.BEEKEEPER ? 'Asalarichi' : 'Foydalanuvchi',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppTheme.honey),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: isVerified ? AppTheme.green.withAlpha(20) : AppTheme.red.withAlpha(15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(
+                isVerified ? Icons.verified_rounded : Icons.error_outline_rounded,
+                size: 14,
+                color: isVerified ? AppTheme.green : AppTheme.red,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                isVerified ? 'Tasdiqlangan' : 'Tasdiqlanmagan',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isVerified ? AppTheme.green : AppTheme.red),
+              ),
+            ]),
+          ),
+        ]),
         const SizedBox(height: 32),
 
         _menuSection('Hisob', [
           _menuItem(Icons.person_outline_rounded, 'Profilni tahrirlash', () {}),
           _menuItem(Icons.notifications_none_rounded, 'Bildirishnomalar', () {}),
+          _menuItem(Icons.language_rounded, 'Til sozlamalari', () {}),
           _menuItem(Icons.security_outlined, 'Xavfsizlik', () {}),
         ]),
         const SizedBox(height: 16),

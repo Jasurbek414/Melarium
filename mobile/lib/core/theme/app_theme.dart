@@ -120,8 +120,9 @@ class StatBox extends StatelessWidget {
   final String value;
   final Color? valueColor;
   final IconData? icon;
+  final String? suffix;
 
-  const StatBox({Key? key, required this.label, required this.value, this.valueColor, this.icon}) : super(key: key);
+  const StatBox({Key? key, required this.label, required this.value, this.valueColor, this.icon, this.suffix}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +142,13 @@ class StatBox extends StatelessWidget {
           ],
           Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.muted, letterSpacing: 0.5)),
           const SizedBox(height: 4),
-          Text(value, style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w700, color: valueColor ?? Colors.white)),
+          Row(crossAxisAlignment: CrossAxisAlignment.baseline, textBaseline: TextBaseline.alphabetic, children: [
+            Text(value, style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w700, color: valueColor ?? Colors.white)),
+            if (suffix != null) ...[
+              const SizedBox(width: 4),
+              Text(suffix!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: (valueColor ?? Colors.white).withAlpha(120))),
+            ],
+          ]),
         ],
       ),
     );

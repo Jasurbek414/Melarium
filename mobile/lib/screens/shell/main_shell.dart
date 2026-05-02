@@ -10,6 +10,7 @@ import '../portfolio/portfolio_screen.dart';
 import '../profile/profile_screen.dart';
 import '../beekeeper/beekeeper_colonies_screen.dart';
 import '../beekeeper/beekeeper_reports_screen.dart';
+import '../auth/verification_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({Key? key}) : super(key: key);
@@ -25,24 +26,51 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final isInvestor = auth.role == UserRole.INVESTOR;
+    final isVerified = auth.isVerified;
 
-    final pages = isInvestor
-        ? const [HomeScreen(), MarketScreen(), PortfolioScreen(), ProfileScreen()]
-        : const [HomeScreen(), BeekeeperColoniesScreen(), BeekeeperReportsScreen(), ProfileScreen()];
+    // ── Pages & Nav based on role + verification ──
+    late final List<Widget> pages;
+    late final List<_NavData> navItems;
 
-    final navItems = isInvestor
-        ? [
-            _NavData(Icons.home_outlined, Icons.home_rounded, 'Bosh sahifa'),
-            _NavData(Icons.storefront_outlined, Icons.storefront_rounded, 'Bozor'),
-            _NavData(Icons.pie_chart_outline_rounded, Icons.pie_chart_rounded, 'Portfolio'),
-            _NavData(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
-          ]
-        : [
-            _NavData(Icons.home_outlined, Icons.home_rounded, 'Bosh sahifa'),
-            _NavData(Icons.hive_outlined, Icons.hive_rounded, 'Koloniyalar'),
-            _NavData(Icons.description_outlined, Icons.description_rounded, 'Hisobotlar'),
-            _NavData(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
-          ];
+    if (isInvestor) {
+      if (isVerified) {
+        // Tasdiqlangan investor — to'liq kirish
+        pages = const [HomeScreen(), MarketScreen(), PortfolioScreen(), ProfileScreen()];
+        navItems = [
+          _NavData(Icons.home_outlined, Icons.home_rounded, 'Bosh sahifa'),
+          _NavData(Icons.storefront_outlined, Icons.storefront_rounded, 'Bozor'),
+          _NavData(Icons.pie_chart_outline_rounded, Icons.pie_chart_rounded, 'Portfolio'),
+          _NavData(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
+        ];
+      } else {
+        // Tasdiqlanmagan investor — faqat bosh sahifa, verifikatsiya, profil
+        pages = const [HomeScreen(), MarketScreen(), VerificationScreen(), ProfileScreen()];
+        navItems = [
+          _NavData(Icons.home_outlined, Icons.home_rounded, 'Bosh sahifa'),
+          _NavData(Icons.storefront_outlined, Icons.storefront_rounded, 'Bozor'),
+          _NavData(Icons.verified_user_outlined, Icons.verified_user_rounded, 'Tasdiqlash'),
+          _NavData(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
+        ];
+      }
+    } else {
+      // Beekeeper
+      if (isVerified) {
+        pages = const [HomeScreen(), BeekeeperColoniesScreen(), BeekeeperReportsScreen(), ProfileScreen()];
+        navItems = [
+          _NavData(Icons.home_outlined, Icons.home_rounded, 'Bosh sahifa'),
+          _NavData(Icons.hive_outlined, Icons.hive_rounded, 'Koloniyalar'),
+          _NavData(Icons.description_outlined, Icons.description_rounded, 'Hisobotlar'),
+          _NavData(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
+        ];
+      } else {
+        pages = const [HomeScreen(), VerificationScreen(), ProfileScreen()];
+        navItems = [
+          _NavData(Icons.home_outlined, Icons.home_rounded, 'Bosh sahifa'),
+          _NavData(Icons.verified_user_outlined, Icons.verified_user_rounded, 'Tasdiqlash'),
+          _NavData(Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
+        ];
+      }
+    }
 
     // Clamp index
     final idx = _currentIndex.clamp(0, pages.length - 1);
@@ -64,14 +92,30 @@ class _MainShellState extends State<MainShell> {
                       const SizedBox(width: 8),
                       Text('MELARIUM', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 4)),
                     ]),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: AppTheme.honey.withAlpha(20), borderRadius: BorderRadius.circular(8)),
-                      child: Text(
-                        isInvestor ? 'Investor' : 'Asalarichi',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.honey),
+                    Row(children: [
+                      // Verification badge
+                      if (isVerified)
+                        Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.green.withAlpha(20),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.check_rounded, size: 14, color: AppTheme.green),
+                        ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.honey.withAlpha(20),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          isInvestor ? 'Investor' : 'Asalarichi',
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.honey),
+                        ),
                       ),
-                    ),
+                    ]),
                   ],
                 ),
               ),
@@ -82,7 +126,10 @@ class _MainShellState extends State<MainShell> {
         ),
 
         bottomNavigationBar: Container(
-          decoration: const BoxDecoration(color: AppTheme.darkCard, border: Border(top: BorderSide(color: AppTheme.darkBorder))),
+          decoration: const BoxDecoration(
+            color: AppTheme.darkCard,
+            border: Border(top: BorderSide(color: AppTheme.darkBorder)),
+          ),
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
