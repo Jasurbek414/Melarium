@@ -4,7 +4,6 @@ import '../providers/auth_provider.dart';
 import '../core/theme/app_theme.dart';
 
 void showTopUpSheet(BuildContext context, AuthProvider auth) {
-  final ctrl = TextEditingController();
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -13,64 +12,80 @@ void showTopUpSheet(BuildContext context, AuthProvider auth) {
     builder: (_) => Padding(
       padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
       child: SingleChildScrollView(
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: [
           Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF333338), borderRadius: BorderRadius.circular(2)))),
-          const SizedBox(height: 20),
-          Text("Balansni to'ldirish", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          const Text('Operator orqali pul o\'tkazish', style: TextStyle(fontSize: 13, color: AppTheme.muted)),
-          const SizedBox(height: 20),
-          // Quick amounts
-          Row(children: [
-            for (final amt in [50000, 100000, 500000])
-              Expanded(child: GestureDetector(
-                onTap: () => ctrl.text = amt.toString(),
-                child: Container(
-                  margin: EdgeInsets.only(right: amt == 500000 ? 0 : 8),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(color: AppTheme.darkBg, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppTheme.darkBorder)),
-                  child: Center(child: Text('${amt ~/ 1000}K', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.honey))),
-                ),
-              )),
-          ]),
-          const SizedBox(height: 14),
-          TextField(
-            controller: ctrl,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            decoration: const InputDecoration(hintText: 'Summani kiriting (UZS)', suffixText: 'UZS'),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: AppTheme.honey.withAlpha(20), shape: BoxShape.circle),
+            child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.honey, size: 32),
           ),
-          const SizedBox(height: 14),
-          // Operator buttons
-          Row(children: [
-            _operatorBtn('Payme', const Color(0xFF00CCCC)),
-            const SizedBox(width: 8),
-            _operatorBtn('Click', const Color(0xFF0A84FF)),
-            const SizedBox(width: 8),
-            _operatorBtn('Uzum', const Color(0xFFFF6B00)),
-          ]),
           const SizedBox(height: 16),
-          MelButton(
-            onPressed: () {
-              final amount = int.tryParse(ctrl.text) ?? 0;
-              if (amount > 0) {
-                auth.addBalance(amount);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Balans muvaffaqiyatli to\'ldirildi!'), backgroundColor: AppTheme.green));
-              }
-            },
-            child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("To'ldirish"), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18)]),
+          Text("Balansni to'ldirish", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          const Text(
+            "Balansni to'ldirish uchun administrator bilan bog'laning.\nAdmin panel orqali balans to'ldiriladi.",
+            style: TextStyle(fontSize: 13, color: AppTheme.muted, height: 1.5),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          // Contact info
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.darkBg,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.darkBorder),
+            ),
+            child: const Column(children: [
+              Row(children: [
+                Icon(Icons.phone_outlined, size: 16, color: AppTheme.honey),
+                SizedBox(width: 8),
+                Text('+998 90 123 45 67', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              ]),
+              SizedBox(height: 8),
+              Row(children: [
+                Icon(Icons.telegram, size: 16, color: AppTheme.honey),
+                SizedBox(width: 8),
+                Text('@melarium_admin', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              ]),
+            ]),
+          ),
+          const SizedBox(height: 16),
+          // Refresh button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                await auth.refreshProfile();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Balans yangilandi'), backgroundColor: AppTheme.green),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.honey.withAlpha(20),
+                foregroundColor: AppTheme.honey,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                side: BorderSide(color: AppTheme.honey.withAlpha(50)),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.refresh_rounded, size: 18),
+                  SizedBox(width: 8),
+                  Text('Balansni yangilash', style: TextStyle(fontWeight: FontWeight.w700)),
+                ],
+              ),
+            ),
           ),
         ]),
       ),
     ),
   );
-}
-
-Widget _operatorBtn(String label, Color color) {
-  return Expanded(child: Container(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    decoration: BoxDecoration(color: color.withAlpha(20), borderRadius: BorderRadius.circular(10), border: Border.all(color: color.withAlpha(50))),
-    child: Center(child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color))),
-  ));
 }

@@ -79,11 +79,19 @@ export const reportApi = {
 export const adminApi = {
   getStats:       () => api.get('/admin/stats'),
   getUsers:       (params) => api.get('/admin/users', { params }),
+  getUserById:    (id) => api.get(`/admin/users/${id}`),
   changeRole:     (id, role) => api.patch(`/admin/users/${id}/role`, null, { params: { role } }),
   toggleActive:   (id) => api.patch(`/admin/users/${id}/toggle-active`),
+  verifyUser:     (id) => api.patch(`/admin/users/${id}/verify`),
+  unverifyUser:   (id) => api.patch(`/admin/users/${id}/unverify`),
+  addBalance:     (id, amount, description) => api.patch(`/admin/users/${id}/balance`, { amount, description }),
+  deductBalance:  (id, amount, description) => api.patch(`/admin/users/${id}/deduct-balance`, { amount, description }),
   getColonies:    (params) => api.get('/admin/colonies', { params }),
   verifyColony:   (id) => api.post(`/admin/colonies/${id}/verify`),
+  rejectColony:   (id) => api.post(`/admin/colonies/${id}/reject`),
   getTransactions: (params) => api.get('/admin/transactions', { params }),
+  getSettings:    () => api.get('/admin/settings'),
+  updateSettings: (data) => api.post('/admin/settings', data),
 }
 
 export default api

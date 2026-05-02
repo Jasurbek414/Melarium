@@ -133,7 +133,9 @@ public class AuthService {
                 user.getRole().name(),
                 user.getId(),
                 user.getPhone(),
-                user.getFullName()
+                user.getFullName(),
+                user.getIsVerified(),
+                user.getBalance()
         );
     }
 
@@ -155,7 +157,8 @@ public class AuthService {
         String newRefresh = jwtUtil.generateRefreshToken(user.getId(), user.getPhone(), user.getRole().name());
 
         return new AuthResponse(newAccess, newRefresh, user.getRole().name(),
-                user.getId(), user.getPhone(), user.getFullName());
+                user.getId(), user.getPhone(), user.getFullName(),
+                user.getIsVerified(), user.getBalance());
     }
 
     // ── UPDATE USER EMAIL ─────────────────────────────────────

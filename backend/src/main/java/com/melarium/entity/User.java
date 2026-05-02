@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -38,6 +39,14 @@ public class User {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
+
+    @Column(name = "is_verified", nullable = false)
+    @Builder.Default
+    private Boolean isVerified = false;
+
+    @Column(name = "balance", nullable = false, precision = 14, scale = 2)
+    @Builder.Default
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @Column(name = "otp_code", length = 10)
     private String otpCode;

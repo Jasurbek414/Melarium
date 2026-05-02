@@ -5,8 +5,10 @@ import com.melarium.enums.UserRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Page<User> findByRole(UserRole role, Pageable pageable);
     long countByRole(UserRole role);
+
+    @Query("SELECT COALESCE(SUM(u.balance), 0) FROM User u")
+    BigDecimal sumTotalBalance();
 }

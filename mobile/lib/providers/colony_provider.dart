@@ -67,7 +67,7 @@ class ColonyProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final res = await _dio.get(ApiConstants.getColonies);
+      final res = await _dio.get(ApiConstants.colonies);
       if (res.statusCode == 200) {
         final List data = res.data;
         _colonies = data.map((e) => Colony.fromJson(e)).toList();

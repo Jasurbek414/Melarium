@@ -1,10 +1,20 @@
 class ApiConstants {
-  // If running on an Android emulator, use 10.0.2.2.
-  // If running on a physical device, use the computer's local IP address (e.g., 192.168.1.100).
-  // If running on Web or Desktop, use localhost.
-  static const String baseUrl = 'http://localhost:8080/api';
-  
+  // Android emulator uchun: 10.0.2.2, real telefon uchun: kompyuter IP
+  static const String baseUrl = 'http://10.0.2.2:8080/api';
+
+  // Auth
   static const String sendOtp = '$baseUrl/auth/send-otp';
   static const String verifyOtp = '$baseUrl/auth/verify-otp';
-  static const String getColonies = '$baseUrl/colonies';
+  static const String refreshToken = '$baseUrl/auth/refresh';
+
+  // User
+  static const String userMe = '$baseUrl/users/me';
+  static const String userProfile = '$baseUrl/users/me/profile';
+
+  // Colonies
+  static const String colonies = '$baseUrl/colonies';
+
+  // Investments
+  static const String investments = '$baseUrl/investments';
+  static const String myInvestments = '$baseUrl/investments/my';
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
-import '../core/constants/api_constants.dart';
+import '../utils/api_service.dart';
 
 enum UserRole { INVESTOR, BEEKEEPER, ADMIN, NONE }
 
@@ -12,7 +11,7 @@ class AuthProvider with ChangeNotifier {
   String _fullName = '';
   bool _isVerified = false;
   int _balance = 0;
-  final Dio _dio = Dio();
+  final ApiService _api = ApiService();
 
   bool get isAuthenticated => _isAuthenticated;
   UserRole get role => _role;
@@ -32,58 +31,98 @@ class AuthProvider with ChangeNotifier {
     if (roleStr == 'INVESTOR') _role = UserRole.INVESTOR;
     else if (roleStr == 'BEEKEEPER') _role = UserRole.BEEKEEPER;
     else if (roleStr == 'ADMIN') _role = UserRole.ADMIN;
+
+    // If authenticated, refresh from backend
+    if (_isAuthenticated) {
+      try { await refreshProfile(); } catch (_) {}
+    }
     notifyListeners();
   }
 
   Future<void> sendOtp(String phone) async {
     _phoneNumber = phone;
     try {
-      await _dio.post(ApiConstants.sendOtp, data: {'phone': phone});
+      await _api.sendOtp(phone);
     } catch (e) {
       debugPrint("OTP Send Error: $e");
     }
   }
 
-  Future<void> verifyOtp(String otp, UserRole selectedRole) async {
+  Future<bool> verifyOtp(String otp, UserRole selectedRole) async {
     try {
+      final response = await _api.verifyOtp(_phoneNumber, otp);
+      final data = response.data;
+
       _isAuthenticated = true;
-      _role = selectedRole;
-      _isVerified = false; // Yangi foydalanuvchi — hali tasdiqlanmagan
+      _role = _parseRole(data['role']);
+      _fullName = data['fullName'] ?? '';
+      _isVerified = data['isVerified'] ?? false;
+      _balance = (data['balance'] is num) ? (data['balance'] as num).toInt() : 0;
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isAuthenticated', true);
-      await prefs.setBool('isVerified', false);
-      await prefs.setString('role', selectedRole.name);
+      await prefs.setString('accessToken', data['accessToken']);
+      await prefs.setString('refreshToken', data['refreshToken']);
+      await prefs.setString('role', data['role']);
       await prefs.setString('phoneNumber', _phoneNumber);
+      await prefs.setString('fullName', _fullName);
+      await prefs.setBool('isVerified', _isVerified);
+      await prefs.setInt('balance', _balance);
       notifyListeners();
+      return true;
     } catch (e) {
       debugPrint("OTP Verify Error: $e");
+      return false;
+    }
+  }
+
+  /// Refresh profile from backend (balance, verify status, etc.)
+  Future<void> refreshProfile() async {
+    try {
+      final response = await _api.getMe();
+      final data = response.data;
+
+      _fullName = data['fullName'] ?? _fullName;
+      _isVerified = data['isVerified'] ?? _isVerified;
+      _balance = (data['balance'] is num) ? (data['balance'] as num).toInt() : _balance;
+      _role = _parseRole(data['role'] ?? '');
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('fullName', _fullName);
+      await prefs.setBool('isVerified', _isVerified);
+      await prefs.setInt('balance', _balance);
+      await prefs.setString('role', data['role'] ?? '');
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Refresh profile error: $e");
     }
   }
 
   Future<void> updateProfile(String name) async {
-    _fullName = name;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('fullName', name);
-    notifyListeners();
+    try {
+      await _api.updateProfile(name);
+      _fullName = name;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('fullName', name);
+      notifyListeners();
+    } catch (e) {
+      // Fallback to local
+      _fullName = name;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('fullName', name);
+      notifyListeners();
+    }
   }
 
-  /// Verifikatsiya so'rovi (backend bilan integratsiya uchun)
+  /// Verifikatsiya so'rovi — admin tasdiqlaydi, biz faqat refresh qilamiz
   Future<void> requestVerification() async {
-    // Backend integratsiyasida bu yerda hujjatlar yuboriladi
-    // Hozircha mock — 2 soniyadan keyin tasdiqlaydi
-    await Future.delayed(const Duration(seconds: 2));
-    _isVerified = true;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isVerified', true);
-    notifyListeners();
+    await refreshProfile();
   }
 
   Future<void> addBalance(int amount) async {
-    _balance += amount;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('balance', _balance);
-    notifyListeners();
+    // Balans faqat admin panel orqali to'ldiriladi
+    // Bu method refreshProfile chaqiradi
+    await refreshProfile();
   }
 
   Future<bool> deductBalance(int amount) async {
@@ -105,5 +144,14 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     notifyListeners();
+  }
+
+  UserRole _parseRole(String role) {
+    switch (role) {
+      case 'INVESTOR': return UserRole.INVESTOR;
+      case 'BEEKEEPER': return UserRole.BEEKEEPER;
+      case 'ADMIN': return UserRole.ADMIN;
+      default: return UserRole.NONE;
+    }
   }
 }

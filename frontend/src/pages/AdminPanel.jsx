@@ -199,128 +199,85 @@ function AdminUsers() {
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
+  const [balModal, setBalModal] = useState(null)
+  const [balAmt, setBalAmt] = useState('')
 
-  const { data: usersData, isLoading } = useQuery({
+  const { data: usersData } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => { const { data } = await adminApi.getUsers({ page: 0, size: 50 }); return data },
   })
-
-  const toggleMutation = useMutation({
-    mutationFn: (id) => adminApi.toggleActive(id),
-    onSuccess: () => { toast.success('Holat yangilandi'); qc.invalidateQueries(['admin-users']) },
-  })
-
-  const roleMutation = useMutation({
-    mutationFn: ({ id, role }) => adminApi.changeRole(id, role),
-    onSuccess: () => { toast.success('Rol yangilandi'); qc.invalidateQueries(['admin-users']) },
+  const toggleMut = useMutation({ mutationFn: (id) => adminApi.toggleActive(id), onSuccess: () => { toast.success('Yangilandi'); qc.invalidateQueries(['admin-users']) } })
+  const roleMut = useMutation({ mutationFn: ({ id, role }) => adminApi.changeRole(id, role), onSuccess: () => { toast.success('Rol yangilandi'); qc.invalidateQueries(['admin-users']) } })
+  const verifyMut = useMutation({ mutationFn: (id) => adminApi.verifyUser(id), onSuccess: () => { toast.success('Tasdiqlandi'); qc.invalidateQueries(['admin-users']) } })
+  const unverifyMut = useMutation({ mutationFn: (id) => adminApi.unverifyUser(id), onSuccess: () => { toast.success('Bekor qilindi'); qc.invalidateQueries(['admin-users']) } })
+  const balMut = useMutation({
+    mutationFn: ({ id, amount }) => adminApi.addBalance(id, amount, "Admin to'ldirdi"),
+    onSuccess: () => { toast.success("Balans to'ldirildi"); qc.invalidateQueries(['admin-users']); setBalModal(null); setBalAmt('') },
+    onError: (e) => toast.error(e.response?.data?.message || 'Xatolik'),
   })
 
   const users = (usersData?.content || []).filter(u => {
-    const matchSearch = !search || u.phone?.includes(search) || u.fullName?.toLowerCase().includes(search.toLowerCase())
-    const matchRole = !roleFilter || u.role === roleFilter
-    return matchSearch && matchRole
+    const ms = !search || u.phone?.includes(search) || u.fullName?.toLowerCase().includes(search.toLowerCase())
+    return ms && (!roleFilter || u.role === roleFilter)
   })
 
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="font-display text-3xl font-black">Foydalanuvchilar</h1>
-          <p className="text-white/40 text-sm mt-1">Barcha foydalanuvchilarni boshqarish</p>
-        </div>
+        <div><h1 className="font-display text-3xl font-black">Foydalanuvchilar</h1><p className="text-white/40 text-sm mt-1">Barcha foydalanuvchilarni boshqarish</p></div>
         <span className="text-sm text-white/30">{users.length} foydalanuvchi</span>
       </div>
-
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Qidirish..."
-            className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none transition-colors"
-          />
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Qidirish..." className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none transition-colors" />
         </div>
-        <CustomSelect
-          value={roleFilter}
-          onChange={setRoleFilter}
-          options={[
-            { value: '', label: 'Barcha rollar' },
-            { value: 'INVESTOR', label: 'Investor' },
-            { value: 'BEEKEEPER', label: 'Asalarichi' },
-            { value: 'ADMIN', label: 'Admin' },
-          ]}
-        />
+        <CustomSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: '', label: 'Barcha rollar' },{ value: 'INVESTOR', label: 'Investor' },{ value: 'BEEKEEPER', label: 'Asalarichi' },{ value: 'ADMIN', label: 'Admin' }]} />
       </div>
-
-      {/* Table */}
       <div className="glass-panel rounded-2xl overflow-hidden">
         <table className="w-full">
-          <thead>
-            <tr className="border-b border-white/5">
-              <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Foydalanuvchi</th>
-              <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Rol</th>
-              <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Holat</th>
-              <th className="text-right px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Amallar</th>
-            </tr>
-          </thead>
+          <thead><tr className="border-b border-white/5">
+            <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Foydalanuvchi</th>
+            <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Rol</th>
+            <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Balans</th>
+            <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Holat</th>
+            <th className="text-right px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Amallar</th>
+          </tr></thead>
           <tbody>
             {users.map(u => (
               <tr key={u.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-honey-500/20 to-honey-600/10 flex items-center justify-center text-xs font-bold text-honey-400">
-                      {(u.fullName || u.phone || '?')[0].toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">{u.fullName || 'Noma\'lum'}</div>
-                      <div className="text-xs text-white/30">{u.phone}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <CustomSelect
-                    value={u.role}
-                    onChange={(role) => roleMutation.mutate({ id: u.id, role })}
-                    options={[
-                      { value: 'INVESTOR', label: 'Investor' },
-                      { value: 'BEEKEEPER', label: 'Asalarichi' },
-                      { value: 'ADMIN', label: 'Admin' },
-                    ]}
-                    small
-                  />
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${u.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${u.isActive ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                    {u.isActive ? 'Faol' : 'Bloklangan'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => toggleMutation.mutate(u.id)}
-                    className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      u.isActive
-                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                        : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                    }`}
-                  >
-                    {u.isActive ? 'Bloklash' : 'Aktivlashtirish'}
-                  </button>
-                </td>
+                <td className="px-6 py-4"><div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-honey-500/20 to-honey-600/10 flex items-center justify-center text-xs font-bold text-honey-400">{(u.fullName||u.phone||'?')[0].toUpperCase()}</div>
+                  <div><div className="text-sm font-semibold flex items-center gap-2">{u.fullName||'Noma\'lum'}{u.isVerified&&<CheckCircle className="w-3.5 h-3.5 text-emerald-400"/>}</div><div className="text-xs text-white/30">{u.phone}</div></div>
+                </div></td>
+                <td className="px-6 py-4"><CustomSelect value={u.role} onChange={(role)=>roleMut.mutate({id:u.id,role})} options={[{value:'INVESTOR',label:'Investor'},{value:'BEEKEEPER',label:'Asalarichi'},{value:'ADMIN',label:'Admin'}]} small/></td>
+                <td className="px-6 py-4"><div className="text-sm font-bold text-honey-400">{Number(u.balance||0).toLocaleString()} UZS</div><button onClick={()=>setBalModal(u)} className="text-xs text-blue-400 hover:underline mt-0.5">+ To'ldirish</button></td>
+                <td className="px-6 py-4"><span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${u.isActive?'bg-emerald-500/10 text-emerald-400':'bg-red-500/10 text-red-400'}`}><span className={`w-1.5 h-1.5 rounded-full ${u.isActive?'bg-emerald-400':'bg-red-400'}`}/>{u.isActive?'Faol':'Bloklangan'}</span></td>
+                <td className="px-6 py-4 text-right"><div className="flex items-center justify-end gap-2">
+                  <button onClick={()=>u.isVerified?unverifyMut.mutate(u.id):verifyMut.mutate(u.id)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${u.isVerified?'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20':'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'}`}>{u.isVerified?'Bekor':'Tasdiqlash'}</button>
+                  <button onClick={()=>toggleMut.mutate(u.id)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${u.isActive?'bg-red-500/10 text-red-400 hover:bg-red-500/20':'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'}`}>{u.isActive?'Bloklash':'Aktiv'}</button>
+                </div></td>
               </tr>
             ))}
-            {users.length === 0 && (
-              <tr><td colSpan={4} className="px-6 py-12 text-center text-white/20 text-sm">Ma'lumot topilmadi</td></tr>
-            )}
+            {users.length===0&&(<tr><td colSpan={5} className="px-6 py-12 text-center text-white/20 text-sm">Ma'lumot topilmadi</td></tr>)}
           </tbody>
         </table>
       </div>
+      {balModal&&(<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={()=>setBalModal(null)}>
+        <div className="bg-[#111116] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl" onClick={e=>e.stopPropagation()}>
+          <h3 className="font-display text-xl font-bold mb-1">Balansni to'ldirish</h3>
+          <p className="text-sm text-white/40 mb-5">{balModal.fullName||balModal.phone}</p>
+          <input type="number" value={balAmt} onChange={e=>setBalAmt(e.target.value)} placeholder="Summa (UZS)" className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm mb-5 focus:border-honey-500/30 focus:outline-none"/>
+          <div className="flex gap-3">
+            <button onClick={()=>setBalModal(null)} className="flex-1 px-4 py-3 rounded-xl bg-white/5 text-sm font-semibold hover:bg-white/10">Bekor</button>
+            <button onClick={()=>{if(Number(balAmt)>0)balMut.mutate({id:balModal.id,amount:Number(balAmt)})}} disabled={balMut.isPending} className="flex-1 px-4 py-3 rounded-xl bg-honey-500/20 text-honey-400 text-sm font-bold hover:bg-honey-500/30 disabled:opacity-50">{balMut.isPending?'...':'To\'ldirish'}</button>
+          </div>
+        </div>
+      </div>)}
     </div>
   )
 }
+
 
 // ═══════════════════════════════════════════
 //  COLONIES MANAGEMENT
@@ -448,53 +405,44 @@ function AdminTransactions() {
 //  SETTINGS
 // ═══════════════════════════════════════════
 function AdminSettings() {
+  const [settings, setSettings] = useState({ investmentCommissionPct: '8.0', honeyCommissionPct: '12.0', colonyListingFee: '50000', minimumInvestment: '100000' })
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    adminApi.getSettings().then(({ data }) => setSettings({ investmentCommissionPct: String(data.investmentCommissionPct), honeyCommissionPct: String(data.honeyCommissionPct), colonyListingFee: String(data.colonyListingFee), minimumInvestment: String(data.minimumInvestment) })).catch(() => {})
+  }, [])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try { await adminApi.updateSettings(settings); toast.success("Sozlamalar saqlandi") } catch { toast.error("Xatolik") }
+    setSaving(false)
+  }
+
+  const inp = "w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none"
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-black">Sozlamalar</h1>
-        <p className="text-white/40 text-sm mt-1">Tizim konfiguratsiyasi</p>
+      <div className="flex items-center justify-between mb-8">
+        <div><h1 className="font-display text-3xl font-black">Sozlamalar</h1><p className="text-white/40 text-sm mt-1">Platforma komissiya va to'lov sozlamalari</p></div>
+        <button onClick={handleSave} disabled={saving} className="px-6 py-3 rounded-xl bg-honey-500/20 text-honey-400 text-sm font-bold hover:bg-honey-500/30 disabled:opacity-50">{saving ? 'Saqlanmoqda...' : 'Saqlash'}</button>
       </div>
-
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="glass-panel rounded-2xl p-6">
-          <h3 className="font-display text-lg font-bold mb-6">Umumiy</h3>
+          <h3 className="font-display text-lg font-bold mb-6">Komissiya foizlari</h3>
           <div className="space-y-5">
-            <div>
-              <label className="block text-xs text-white/40 font-semibold mb-2">Platforma nomi</label>
-              <input type="text" defaultValue="Melarium" className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none" />
-            </div>
-            <div>
-              <label className="block text-xs text-white/40 font-semibold mb-2">Aloqa email</label>
-              <input type="email" defaultValue="admin@melarium.uz" className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none" />
-            </div>
-            <div>
-              <label className="block text-xs text-white/40 font-semibold mb-2">Minimal investitsiya (UZS)</label>
-              <input type="number" defaultValue="100000" className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none" />
-            </div>
+            <div><label className="block text-xs text-white/40 font-semibold mb-2">Investitsiya komissiyasi (%)</label><input type="number" value={settings.investmentCommissionPct} onChange={e => setSettings(p => ({...p, investmentCommissionPct: e.target.value}))} className={inp} /></div>
+            <div><label className="block text-xs text-white/40 font-semibold mb-2">Asal sotish komissiyasi (%)</label><input type="number" value={settings.honeyCommissionPct} onChange={e => setSettings(p => ({...p, honeyCommissionPct: e.target.value}))} className={inp} /></div>
           </div>
         </div>
-
         <div className="glass-panel rounded-2xl p-6">
-          <h3 className="font-display text-lg font-bold mb-6">Xavfsizlik</h3>
-          <div className="space-y-4">
-            {[
-              { label: 'Ikki bosqichli autentifikatsiya', desc: 'Admin login uchun 2FA', enabled: true },
-              { label: 'IP cheklash', desc: 'Faqat ruxsat berilgan IP lar', enabled: false },
-              { label: 'Audit log', desc: 'Barcha o\'zgarishlarni qayd qilish', enabled: true },
-            ].map((s, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02]">
-                <div>
-                  <div className="text-sm font-semibold">{s.label}</div>
-                  <div className="text-xs text-white/30">{s.desc}</div>
-                </div>
-                <div className={`w-11 h-6 rounded-full relative cursor-pointer transition-colors ${s.enabled ? 'bg-honey-500' : 'bg-white/10'}`}>
-                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${s.enabled ? 'left-[22px]' : 'left-0.5'}`} />
-                </div>
-              </div>
-            ))}
+          <h3 className="font-display text-lg font-bold mb-6">To'lov sozlamalari</h3>
+          <div className="space-y-5">
+            <div><label className="block text-xs text-white/40 font-semibold mb-2">Koloniya joylashtirish to'lovi (UZS)</label><input type="number" value={settings.colonyListingFee} onChange={e => setSettings(p => ({...p, colonyListingFee: e.target.value}))} className={inp} /></div>
+            <div><label className="block text-xs text-white/40 font-semibold mb-2">Minimal investitsiya (UZS)</label><input type="number" value={settings.minimumInvestment} onChange={e => setSettings(p => ({...p, minimumInvestment: e.target.value}))} className={inp} /></div>
           </div>
         </div>
       </div>
     </div>
   )
 }
+

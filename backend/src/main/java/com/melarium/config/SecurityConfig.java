@@ -44,6 +44,9 @@ public class SecurityConfig {
                         // Beekeeper only
                         .requestMatchers("/api/reports/**").hasAnyRole("BEEKEEPER", "ADMIN")
 
+                        // User profile (any authenticated user)
+                        .requestMatchers("/api/users/me/**").authenticated()
+
                         // Admin only
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
