@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Marketplace from './pages/Marketplace'
 import ColonyDetail from './pages/ColonyDetail'
@@ -23,10 +24,13 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={accessToken ? <Navigate to="/" replace /> : <Login />} />
+      {/* Public Landing Page */}
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={accessToken ? <Navigate to="/marketplace" replace /> : <Login />} />
 
+      {/* App Shell */}
       <Route element={<Layout />}>
-        <Route path="/" element={<Marketplace />} />
+        <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/colony/:id" element={<ColonyDetail />} />
 
         <Route
@@ -48,7 +52,7 @@ export default function App() {
         />
 
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
             <ProtectedRoute roles={['ADMIN']}>
               <AdminPanel />
