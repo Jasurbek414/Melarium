@@ -48,12 +48,20 @@ class _CompactColonyCard extends StatelessWidget {
     final color = statusColors[colony['status']] ?? AppTheme.muted;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.darkBorder),
+        gradient: LinearGradient(
+          colors: [color.withAlpha(15), Colors.transparent],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withAlpha(30)),
+        boxShadow: [
+          BoxShadow(color: color.withAlpha(10), blurRadius: 12, offset: const Offset(0, 4)),
+        ],
       ),
       child: Row(children: [
         // Bee icon

@@ -98,23 +98,56 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: 10),
       ],
       Container(
-        decoration: BoxDecoration(color: AppTheme.darkCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.darkBorder)),
-        child: Column(children: items),
+        decoration: BoxDecoration(
+          color: AppTheme.darkCard,
+          gradient: LinearGradient(
+            colors: [Colors.white.withAlpha(5), Colors.transparent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withAlpha(10)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Column(
+          children: items.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final isLast = idx == items.length - 1;
+            return Column(
+              children: [
+                entry.value,
+                if (!isLast)
+                  Divider(height: 1, indent: 52, color: Colors.white.withAlpha(10)),
+              ],
+            );
+          }).toList(),
+        ),
       ),
     ]);
   }
 
   Widget _menuItem(IconData icon, String label, VoidCallback onTap, {bool isDestructive = false}) {
+    final color = isDestructive ? AppTheme.red : AppTheme.muted;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Row(children: [
-          Icon(icon, size: 20, color: isDestructive ? AppTheme.red : AppTheme.muted),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withAlpha(20),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: color.withAlpha(30)),
+            ),
+            child: Icon(icon, size: 18, color: isDestructive ? AppTheme.red : Colors.white),
+          ),
           const SizedBox(width: 14),
-          Expanded(child: Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: isDestructive ? AppTheme.red : Colors.white))),
-          const Icon(Icons.chevron_right_rounded, size: 20, color: Color(0xFF333338)),
+          Expanded(child: Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: isDestructive ? AppTheme.red : Colors.white))),
+          Icon(Icons.chevron_right_rounded, size: 20, color: Colors.white.withAlpha(40)),
         ]),
       ),
     );
