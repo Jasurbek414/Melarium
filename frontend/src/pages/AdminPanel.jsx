@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { adminApi } from '../api/axios'
@@ -6,8 +6,45 @@ import toast from 'react-hot-toast'
 import {
   LayoutDashboard, Users, Layers, DollarSign, Activity, Settings,
   CheckCircle, Ban, Search, ChevronDown, TrendingUp, ArrowUpRight,
-  AlertTriangle, MoreVertical, Eye, Edit, Trash2, Filter, Download
+  AlertTriangle, MoreVertical, Eye, Edit, Trash2, Filter, Download, Check
 } from 'lucide-react'
+
+// Custom dark dropdown component
+function CustomSelect({ value, onChange, options, small }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+  const current = options.find(o => o.value === value)
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center justify-between gap-2 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-white/15 text-white transition-all ${small ? 'px-3 py-1.5 text-xs min-w-[120px]' : 'px-4 py-3 text-sm min-w-[180px]'}`}
+      >
+        <span className="font-semibold">{current?.label}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-white/40 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className={`absolute top-[calc(100%+6px)] left-0 min-w-full bg-[#111116] border border-white/10 rounded-xl p-1.5 shadow-[0_15px_40px_rgba(0,0,0,0.7)] z-50 ${small ? 'text-xs' : 'text-sm'}`}>
+          {options.map(o => (
+            <button
+              key={o.value}
+              onClick={() => { onChange(o.value); setOpen(false) }}
+              className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between transition-all ${value === o.value ? 'bg-honey-500/10 text-honey-400 font-semibold' : 'text-white/70 hover:bg-white/5 hover:text-white'}`}
+            >
+              {o.label}
+              {value === o.value && <Check className="w-3.5 h-3.5" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ═══════════════════════════════════════════
 //  ADMIN LAYOUT WITH SIDEBAR
@@ -25,9 +62,9 @@ export default function AdminPanel() {
   ]
 
   return (
-    <div className="flex min-h-[calc(100vh-80px)]">
+    <div className="flex" style={{ minHeight: 'calc(100vh - 80px)' }}>
       {/* SIDEBAR */}
-      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} transition-all duration-300 border-r border-white/5 bg-[#080809] flex flex-col`}>
+      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} transition-all duration-300 border-r border-white/5 bg-[#080809]/90 backdrop-blur-xl flex flex-col sticky top-[80px] self-start`} style={{ height: 'calc(100vh - 80px)' }}>
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           {!sidebarCollapsed && <span className="text-sm font-bold text-honey-500 tracking-wider">ADMIN</span>}
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors">
@@ -206,16 +243,16 @@ function AdminUsers() {
             className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none transition-colors"
           />
         </div>
-        <select
+        <CustomSelect
           value={roleFilter}
-          onChange={e => setRoleFilter(e.target.value)}
-          className="px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm focus:border-honey-500/30 focus:outline-none transition-colors appearance-none cursor-pointer"
-        >
-          <option value="">Barcha rollar</option>
-          <option value="INVESTOR">Investor</option>
-          <option value="BEEKEEPER">Asalarichi</option>
-          <option value="ADMIN">Admin</option>
-        </select>
+          onChange={setRoleFilter}
+          options={[
+            { value: '', label: 'Barcha rollar' },
+            { value: 'INVESTOR', label: 'Investor' },
+            { value: 'BEEKEEPER', label: 'Asalarichi' },
+            { value: 'ADMIN', label: 'Admin' },
+          ]}
+        />
       </div>
 
       {/* Table */}
@@ -244,15 +281,16 @@ function AdminUsers() {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <select
+                  <CustomSelect
                     value={u.role}
-                    onChange={e => roleMutation.mutate({ id: u.id, role: e.target.value })}
-                    className="px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs font-semibold focus:outline-none cursor-pointer"
-                  >
-                    <option value="INVESTOR">Investor</option>
-                    <option value="BEEKEEPER">Asalarichi</option>
-                    <option value="ADMIN">Admin</option>
-                  </select>
+                    onChange={(role) => roleMutation.mutate({ id: u.id, role })}
+                    options={[
+                      { value: 'INVESTOR', label: 'Investor' },
+                      { value: 'BEEKEEPER', label: 'Asalarichi' },
+                      { value: 'ADMIN', label: 'Admin' },
+                    ]}
+                    small
+                  />
                 </td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${u.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
