@@ -155,13 +155,16 @@ class _MainShellState extends State<MainShell> {
             color: AppTheme.darkCard,
             border: Border(top: BorderSide(color: AppTheme.darkBorder)),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(navItems.length, (i) => _navItem(navItems[i], i, idx)),
-              ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 8, 
+              right: 8, 
+              top: 8, 
+              bottom: MediaQuery.of(context).padding.bottom > 0 ? MediaQuery.of(context).padding.bottom : 12,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(navItems.length, (i) => _navItem(navItems[i], i, idx)),
             ),
           ),
         ),
@@ -197,11 +200,13 @@ class _MainShellState extends State<MainShell> {
     final ctrl = TextEditingController();
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppTheme.darkCard,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => Padding(
         padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        child: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF333338), borderRadius: BorderRadius.circular(2)))),
           const SizedBox(height: 20),
           Text("Balansni to'ldirish", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
@@ -250,6 +255,7 @@ class _MainShellState extends State<MainShell> {
             child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("To'ldirish"), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 18)]),
           ),
         ]),
+        ),
       ),
     );
   }
