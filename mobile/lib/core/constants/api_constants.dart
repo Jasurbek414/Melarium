@@ -1,6 +1,10 @@
 class ApiConstants {
-  // Android emulator uchun: 10.0.2.2, real telefon uchun: kompyuter IP
-  static const String baseUrl = 'http://10.0.2.2:8080/api';
+  // ══════════════════════════════════════════════════════════
+  // PUBLIC SERVER - bu yerga VPS/server public IP yozing
+  // Masalan: http://95.130.227.100:8080/api
+  // HTTPS bo'lsa: https://api.melarium.uz/api
+  // ══════════════════════════════════════════════════════════
+  static const String baseUrl = 'http://YOUR_SERVER_IP:8080/api';
 
   // Auth
   static const String sendOtp = '$baseUrl/auth/send-otp';
