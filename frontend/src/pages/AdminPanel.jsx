@@ -62,9 +62,9 @@ export default function AdminPanel() {
   ]
 
   return (
-    <div className="flex" style={{ minHeight: 'calc(100vh - 80px)' }}>
-      {/* SIDEBAR */}
-      <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} transition-all duration-300 border-r border-white/5 bg-[#080809]/90 backdrop-blur-xl flex flex-col sticky top-[80px] self-start`} style={{ height: 'calc(100vh - 80px)' }}>
+    <div className="min-h-[calc(100vh-80px)]">
+      {/* SIDEBAR — fixed, no scroll */}
+      <aside className={`fixed top-[80px] left-0 bottom-0 ${sidebarCollapsed ? 'w-20' : 'w-64'} transition-all duration-300 border-r border-white/5 bg-[#080809]/95 backdrop-blur-xl flex flex-col z-40 overflow-hidden`}>
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           {!sidebarCollapsed && <span className="text-sm font-bold text-honey-500 tracking-wider">ADMIN</span>}
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors">
@@ -94,8 +94,8 @@ export default function AdminPanel() {
         </nav>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      {/* MAIN CONTENT — offset by sidebar width */}
+      <main className={`${sidebarCollapsed ? 'ml-20' : 'ml-64'} transition-all duration-300 p-8`}>
         <Routes>
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
