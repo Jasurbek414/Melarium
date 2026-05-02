@@ -15,6 +15,12 @@
   *, *::before, *::after {
     cursor: none !important;
   }
+  select {
+    @apply bg-[#111116] text-white;
+  }
+  select option {
+    @apply bg-[#111116] text-white;
+  }
 }
 
 @layer components {
