@@ -14,7 +14,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   const sendOtp = useMutation({
-    mutationFn: () => authApi.sendOtp(phone),
+    mutationFn: () => authApi.sendOtp(phone.replace(/\s+/g, '')),
     onSuccess: () => {
       toast.success('Security code sent!')
       setStep(2)
@@ -23,13 +23,13 @@ export default function Login() {
   })
 
   const verifyOtp = useMutation({
-    mutationFn: () => authApi.verifyOtp(phone, otp),
+    mutationFn: () => authApi.verifyOtp(phone.replace(/\s+/g, ''), otp),
     onSuccess: ({ data }) => {
       toast.success('Welcome back!')
-      setAuth(data.user, data.accessToken, data.refreshToken)
-      navigate('/')
+      setAuth(data)
+      navigate('/admin')
     },
-    onError: () => toast.error('Invalid security code.'),
+    onError: (error) => toast.error(error.response?.data?.message || 'Invalid security code.'),
   })
 
   const handleSubmit = (e) => {
@@ -112,7 +112,7 @@ export default function Login() {
 
             <h2 className="text-3xl font-display font-bold text-white mb-2">Welcome Back</h2>
             <p className="text-white/50 mb-10 font-light">
-              {step === 1 ? 'Enter your credentials to access your portfolio.' : 'Enter the 6-digit security code.'}
+              {step === 1 ? 'Enter your credentials to access your portfolio.' : 'Enter the 4-digit security code.'}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -155,7 +155,7 @@ export default function Login() {
                     <input
                       type="text"
                       required
-                      maxLength={6}
+                      maxLength={4}
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
                       placeholder="• • • • • •"

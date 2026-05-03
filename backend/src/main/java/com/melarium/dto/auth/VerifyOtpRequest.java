@@ -10,6 +10,8 @@ public record VerifyOtpRequest(
         String phone,
 
         @NotBlank(message = "OTP code is required")
-        @Size(min = 6, max = 6, message = "OTP must be exactly 6 digits")
-        String otpCode
+        @Size(min = 4, max = 6, message = "OTP must be 4-6 digits")
+        String code,
+
+        String role
 ) {}

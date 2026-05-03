@@ -67,46 +67,57 @@ class _BeekeeperColoniesScreenState extends State<BeekeeperColoniesScreen> {
       isScrollControlled: true,
       backgroundColor: AppTheme.darkCard,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => Padding(
-        padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF333338), borderRadius: BorderRadius.circular(2)))),
-          const SizedBox(height: 20),
-          Text("Yangi koloniya", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 20),
-          TextField(controller: nameCtrl, decoration: const InputDecoration(hintText: 'Koloniya nomi')),
-          const SizedBox(height: 12),
-          TextField(controller: locCtrl, decoration: const InputDecoration(hintText: 'Manzil (Viloyat/Tuman)')),
-          const SizedBox(height: 12),
-          Row(children: [
-            Expanded(child: TextField(controller: priceCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Narxi (UZS)'))),
-            const SizedBox(width: 12),
-            Expanded(child: TextField(controller: roiCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Kutilgan ROI (%)'))),
-          ]),
-          const SizedBox(height: 24),
-          MelButton(
-            onPressed: () {
-              if (nameCtrl.text.isNotEmpty && locCtrl.text.isNotEmpty) {
-                final newColony = Colony(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  name: nameCtrl.text,
-                  location: locCtrl.text,
-                  price: int.tryParse(priceCtrl.text) ?? 1000000,
-                  expectedRoi: double.tryParse(roiCtrl.text) ?? 15.0,
-                  fundedPercentage: 0,
-                  status: 'Kutish',
-                  temperature: 30.0,
-                  humidity: 50.0,
-                  weight: 0.0,
-                  investorCount: 0,
-                );
-                context.read<ColonyProvider>().addColony(newColony);
-                Navigator.pop(context);
-              }
-            },
-            child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("Qo'shish"), SizedBox(width: 8), Icon(Icons.add_rounded, size: 18)]),
-          ),
-        ]),
+      builder: (_) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFF333338), borderRadius: BorderRadius.circular(2)))),
+                  const SizedBox(height: 20),
+                  Text("Yangi koloniya", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 20),
+                  TextField(controller: nameCtrl, decoration: const InputDecoration(hintText: 'Koloniya nomi')),
+                  const SizedBox(height: 12),
+                  TextField(controller: locCtrl, decoration: const InputDecoration(hintText: 'Manzil (Viloyat/Tuman)')),
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    Expanded(child: TextField(controller: priceCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Narxi (UZS)'))),
+                    const SizedBox(width: 12),
+                    Expanded(child: TextField(controller: roiCtrl, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Kutilgan ROI (%)'))),
+                  ]),
+                  const SizedBox(height: 24),
+                  MelButton(
+                    onPressed: () {
+                      if (nameCtrl.text.isNotEmpty && locCtrl.text.isNotEmpty) {
+                        final newColony = Colony(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          name: nameCtrl.text,
+                          location: locCtrl.text,
+                          price: int.tryParse(priceCtrl.text) ?? 1000000,
+                          expectedRoi: double.tryParse(roiCtrl.text) ?? 15.0,
+                          fundedPercentage: 0,
+                          status: 'Kutish',
+                          temperature: 30.0,
+                          humidity: 50.0,
+                          weight: 0.0,
+                          investorCount: 0,
+                        );
+                        context.read<ColonyProvider>().addColony(newColony);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text("Qo'shish"), SizedBox(width: 8), Icon(Icons.add_rounded, size: 18)]),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

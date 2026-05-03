@@ -42,7 +42,7 @@ public class AuthController {
      */
     @PostMapping("/verify-otp")
     public ResponseEntity<AuthResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
-        return ResponseEntity.ok(authService.verifyOtp(request.phone(), request.otpCode()));
+        return ResponseEntity.ok(authService.verifyOtp(request.phone(), request.code(), request.role()));
     }
 
     /**
@@ -51,7 +51,7 @@ public class AuthController {
      */
     @PostMapping("/verify-otp-email")
     public ResponseEntity<AuthResponse> verifyOtpByEmail(@Valid @RequestBody VerifyOtpEmailRequest request) {
-        return ResponseEntity.ok(authService.verifyOtpByEmail(request.email(), request.otpCode()));
+        return ResponseEntity.ok(authService.verifyOtpByEmail(request.email(), request.code()));
     }
 
     /**

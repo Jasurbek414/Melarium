@@ -29,7 +29,7 @@ public class Colony {
     @Column(nullable = false, length = 255)
     private String location;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 2000)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -57,8 +57,7 @@ public class Colony {
     private LocalDate seasonEnd;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "colony_status", nullable = false)
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, length = 30)
     @Builder.Default
     private ColonyStatus status = ColonyStatus.AVAILABLE;
 

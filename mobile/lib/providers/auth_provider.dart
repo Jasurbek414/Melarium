@@ -45,12 +45,13 @@ class AuthProvider with ChangeNotifier {
       await _api.sendOtp(phone);
     } catch (e) {
       debugPrint("OTP Send Error: $e");
+      rethrow;
     }
   }
 
   Future<bool> verifyOtp(String otp, UserRole selectedRole) async {
     try {
-      final response = await _api.verifyOtp(_phoneNumber, otp);
+      final response = await _api.verifyOtp(_phoneNumber, otp, selectedRole.name);
       final data = response.data;
 
       _isAuthenticated = true;

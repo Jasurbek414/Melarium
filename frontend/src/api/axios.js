@@ -22,11 +22,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       originalRequest._retry = true
 
       try {
         const refreshToken = useAuthStore.getState().refreshToken
+        if (!refreshToken) throw new Error("No refresh token");
+        
         const { data } = await axios.post('/api/auth/refresh', { refreshToken })
         useAuthStore.getState().setTokens(data.accessToken, data.refreshToken)
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
@@ -45,19 +47,24 @@ api.interceptors.response.use(
 export const authApi = {
   sendOtp:          (phone)              => api.post('/auth/send-otp', { phone }),
   sendOtpEmail:     (email)              => api.post('/auth/send-otp-email', { email }),
-  verifyOtp:        (phone, otpCode)     => api.post('/auth/verify-otp', { phone, otpCode }),
-  verifyOtpEmail:   (email, otpCode)     => api.post('/auth/verify-otp-email', { email, otpCode }),
+  verifyOtp:        (phone, code)        => api.post('/auth/verify-otp', { phone, code }),
+  verifyOtpEmail:   (email, code)        => api.post('/auth/verify-otp-email', { email, code }),
   refresh:          (refreshToken)       => api.post('/auth/refresh', { refreshToken }),
   updateEmail:      (email)              => api.put('/auth/email', { email }),
 }
 
 // ── COLONIES ──────────────────────────────────────────
 export const colonyApi = {
-  getMarketplace: (params) => api.get('/colonies', { params }),
-  getById:        (id) => api.get(`/colonies/${id}`),
-  create:         (data) => api.post('/colonies', data),
+  getColonies:    () => api.get('/colonies'),
+  getColony:      (id) => api.get(`/colonies/${id}`),
+  createColony:   (data) => api.post('/colonies', data),
   updateStatus:   (id, status) => api.patch(`/colonies/${id}/status`, null, { params: { status } }),
   updateIot:      (id, data) => api.patch(`/colonies/${id}/iot`, null, { params: data }),
+}
+
+export const topupApi = {
+  getPending:     () => api.get('/topup/pending'),
+  process:        (id, data) => api.post(`/topup/${id}/process`, data),
 }
 
 // ── INVESTMENTS ───────────────────────────────────────
@@ -90,6 +97,7 @@ export const adminApi = {
   verifyColony:   (id) => api.post(`/admin/colonies/${id}/verify`),
   rejectColony:   (id) => api.post(`/admin/colonies/${id}/reject`),
   getTransactions: (params) => api.get('/admin/transactions', { params }),
+  getReports:     (params) => api.get('/admin/reports', { params }),
   getSettings:    () => api.get('/admin/settings'),
   updateSettings: (data) => api.post('/admin/settings', data),
 }

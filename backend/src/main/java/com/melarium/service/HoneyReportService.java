@@ -67,7 +67,10 @@ public class HoneyReportService {
         HoneyReport report = honeyReportRepository.findById(reportId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found"));
 
-        if (!report.getBeekeeper().getId().equals(beekeeperId)) {
+        User actor = userRepository.findById(beekeeperId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!actor.getRole().equals(UserRole.ADMIN) && !report.getBeekeeper().getId().equals(beekeeperId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not your report");
         }
 

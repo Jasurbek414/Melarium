@@ -41,6 +41,8 @@ public class AuthService {
                     .phone(phone)
                     .role(UserRole.INVESTOR)
                     .isActive(true)
+                    .isVerified(false)
+                    .balance(java.math.BigDecimal.ZERO)
                     .build();
             return userRepository.save(newUser);
         });
@@ -52,12 +54,12 @@ public class AuthService {
 
         log.info("[OTP] Phone: {} | Code: {} | Expires: {}s", phone, otp, otpExpirySeconds);
 
-        // Send email if user has email address
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+        // Send email only if NOT in simulate mode
+        if (!otpSimulate && user.getEmail() != null && !user.getEmail().isBlank()) {
             emailService.sendOtpEmail(user.getEmail(), otp, phone);
             log.info("[OTP] Email sent to: {}", user.getEmail());
         } else {
-            log.warn("[OTP] No email for user {}. OTP visible in logs only.", phone);
+            log.info("[OTP] Simulate mode or no email. OTP: {}", otp);
         }
 
         // In simulate mode: return OTP in response (for testing)
@@ -94,21 +96,21 @@ public class AuthService {
 
     // ── VERIFY OTP (by phone) ─────────────────────────────────
     @Transactional
-    public AuthResponse verifyOtp(String phone, String otpCode) {
+    public AuthResponse verifyOtp(String phone, String otpCode, String requestedRole) {
         User user = userRepository.findByPhone(phone)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return doVerify(user, otpCode);
+        return doVerify(user, otpCode, requestedRole);
     }
 
     // ── VERIFY OTP (by email) ─────────────────────────────────
     @Transactional
-    public AuthResponse verifyOtpByEmail(String email, String otpCode) {
+    public AuthResponse verifyOtpByEmail(String email, String otpCode, String requestedRole) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return doVerify(user, otpCode);
+        return doVerify(user, otpCode, requestedRole);
     }
 
-    private AuthResponse doVerify(User user, String otpCode) {
+    private AuthResponse doVerify(User user, String otpCode, String requestedRole) {
         if (user.getOtpCode() == null || !user.getOtpCode().equals(otpCode)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP code");
         }
@@ -120,6 +122,20 @@ public class AuthService {
         // Clear OTP after successful verification (one-time use)
         user.setOtpCode(null);
         user.setOtpExpiresAt(null);
+
+        // Update role if requested and current role is default (INVESTOR)
+        if (requestedRole != null && !requestedRole.isBlank()) {
+            try {
+                UserRole role = UserRole.valueOf(requestedRole.toUpperCase());
+                // Only allow change if user is still a default INVESTOR and not already something else
+                if (user.getRole() == UserRole.INVESTOR) {
+                    user.setRole(role);
+                }
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid role requested: {}", requestedRole);
+            }
+        }
+
         userRepository.save(user);
 
         String accessToken  = jwtUtil.generateAccessToken(user.getId(), user.getPhone(), user.getRole().name());
@@ -175,6 +191,9 @@ public class AuthService {
 
     // ── HELPERS ───────────────────────────────────────────────
     private String generateOtp() {
+        if (otpSimulate) {
+            return "1234";
+        }
         return String.valueOf(100000 + RANDOM.nextInt(900000));
     }
 }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants/api_constants.dart';
 
@@ -11,6 +12,10 @@ class ApiService {
     connectTimeout: const Duration(seconds: 15),
     receiveTimeout: const Duration(seconds: 15),
     headers: {'Content-Type': 'application/json'},
+  ))..interceptors.add(LogInterceptor(
+    requestBody: true, 
+    responseBody: true,
+    logPrint: (o) => debugPrint(o.toString()),
   ));
 
   Future<String?> get _accessToken async {
@@ -27,8 +32,8 @@ class ApiService {
   Future<Response> sendOtp(String phone) =>
       _dio.post(ApiConstants.sendOtp, data: {'phone': phone});
 
-  Future<Response> verifyOtp(String phone, String otpCode) =>
-      _dio.post(ApiConstants.verifyOtp, data: {'phone': phone, 'otpCode': otpCode});
+  Future<Response> verifyOtp(String phone, String otpCode, String role) =>
+      _dio.post(ApiConstants.verifyOtp, data: {'phone': phone, 'code': otpCode, 'role': role});
 
   Future<Response> refreshToken(String refreshToken) =>
       _dio.post(ApiConstants.refreshToken, data: {'refreshToken': refreshToken});
@@ -56,4 +61,13 @@ class ApiService {
 
   Future<Response> getMyInvestments({int page = 0, int size = 20}) async =>
       _dio.get(ApiConstants.myInvestments, queryParameters: {'page': page, 'size': size}, options: await _authHeaders());
+
+  // ── TOP UP ───────────────────────────────
+  Future<Response> requestTopUp(double amount, String method, String phone) async {
+    return _dio.post(ApiConstants.topUpRequest, data: {
+      'amount': amount, 
+      'method': method,
+      'phone': phone
+    }, options: await _authHeaders());
+  }
 }

@@ -5,5 +5,6 @@ public enum ColonyStatus {
     ACTIVE,
     HARVESTING,
     COMPLETED,
-    SUSPENDED
+    SUSPENDED,
+    DEACTIVATED
 }

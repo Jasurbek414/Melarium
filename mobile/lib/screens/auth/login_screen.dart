@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   void _submit() async {
-    final phone = _phoneController.text.trim();
+    final phone = _phoneController.text.replaceAll(' ', '');
     if (phone.length < 5) return;
     setState(() => _isLoading = true);
     try {

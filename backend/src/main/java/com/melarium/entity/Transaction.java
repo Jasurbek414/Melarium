@@ -36,29 +36,26 @@ public class Transaction {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "transaction_type", nullable = false)
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, length = 30)
     private TransactionType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "payment_provider", nullable = false)
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, length = 30)
     @Builder.Default
     private PaymentProvider provider = PaymentProvider.MOCK;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "transaction_status", nullable = false)
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, length = 30)
     @Builder.Default
     private TransactionStatus status = TransactionStatus.PENDING;
 
     @Column(name = "provider_tx_id", length = 100)
     private String providerTxId;
 
-    @Column(name = "provider_payload", columnDefinition = "jsonb")
+    @Column(name = "provider_payload", length = 2000)
     private String providerPayload;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 500)
     private String description;
 
     @CreationTimestamp

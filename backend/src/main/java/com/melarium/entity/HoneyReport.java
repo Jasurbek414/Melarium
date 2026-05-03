@@ -46,7 +46,7 @@ public class HoneyReport {
     @Column(name = "honey_price_per_kg", nullable = false, precision = 8, scale = 2)
     private BigDecimal honeyPricePerKg;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 2000)
     private String notes;
 
     @Column(name = "is_finalized", nullable = false)

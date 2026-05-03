@@ -4,7 +4,7 @@ class ApiConstants {
   // Masalan: http://95.130.227.100:8080/api
   // HTTPS bo'lsa: https://api.melarium.uz/api
   // ══════════════════════════════════════════════════════════
-  static const String baseUrl = 'http://YOUR_SERVER_IP:8080/api';
+  static const String baseUrl = 'https://asal-api.ecos.uz/api';
 
   // Auth
   static const String sendOtp = '$baseUrl/auth/send-otp';
@@ -21,4 +21,5 @@ class ApiConstants {
   // Investments
   static const String investments = '$baseUrl/investments';
   static const String myInvestments = '$baseUrl/investments/my';
+  static const String topUpRequest = '$baseUrl/topup/request';
 }

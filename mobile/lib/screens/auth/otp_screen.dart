@@ -13,8 +13,8 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  final List<TextEditingController> _controllers = List.generate(4, (_) => TextEditingController());
+  final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
   bool _isLoading = false;
   int _selectedRoleIndex = 0;
 
@@ -22,7 +22,7 @@ class _OtpScreenState extends State<OtpScreen> {
   void initState() {
     super.initState();
     // Listen for key events to handle backspace on empty fields
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 4; i++) {
       _focusNodes[i].onKeyEvent = (node, event) {
         if (event is KeyDownEvent &&
             event.logicalKey == LogicalKeyboardKey.backspace &&
@@ -55,8 +55,13 @@ class _OtpScreenState extends State<OtpScreen> {
     setState(() => _isLoading = true);
     try {
       final role = _selectedRoleIndex == 0 ? UserRole.INVESTOR : UserRole.BEEKEEPER;
-      await context.read<AuthProvider>().verifyOtp(_otp, role);
-      if (mounted) Navigator.pop(context);
+      final success = await context.read<AuthProvider>().verifyOtp(_otp, role);
+      if (success && mounted) {
+        // Only pop if successful, which should trigger the main shell to load
+        Navigator.pop(context);
+      } else if (!success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kod noto\'g\'ri, qayta tekshiring')));
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Xatolik: $e')));
@@ -98,7 +103,7 @@ class _OtpScreenState extends State<OtpScreen> {
                 Text('Tasdiqlash', style: GoogleFonts.outfit(fontSize: 34, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
                 const Text(
-                  'Telefon raqamingizga yuborilgan\n6 xonali kodni kiriting.',
+                  'Telefon raqamingizga yuborilgan\n4 xonali kodni kiriting.',
                   style: TextStyle(fontSize: 15, color: AppTheme.muted, height: 1.5),
                 ),
                 const SizedBox(height: 32),
@@ -106,8 +111,8 @@ class _OtpScreenState extends State<OtpScreen> {
                 // ── OTP Boxes ──
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(6, (i) => SizedBox(
-                    width: 48,
+                  children: List.generate(4, (i) => SizedBox(
+                    width: 60,
                     height: 56,
                     child: TextField(
                       controller: _controllers[i],
@@ -136,7 +141,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: (val) {
-                        if (val.isNotEmpty && i < 5) {
+                        if (val.isNotEmpty && i < 3) {
                           _focusNodes[i + 1].requestFocus();
                         }
                       },

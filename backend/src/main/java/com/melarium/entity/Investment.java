@@ -48,14 +48,12 @@ public class Investment {
     private BigDecimal actualReturn = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "investment_status", nullable = false)
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, length = 30)
     @Builder.Default
     private InvestmentStatus status = InvestmentStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "honey_choice", columnDefinition = "honey_choice")
-    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(name = "honey_choice", length = 30)
     private HoneyChoice honeyChoice;
 
     @CreationTimestamp

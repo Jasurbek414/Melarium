@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { adminApi } from '../api/axios'
+import { adminApi, reportApi } from '../api/axios'
 import toast from 'react-hot-toast'
 import {
   LayoutDashboard, Users, Layers, DollarSign, Activity, Settings,
@@ -57,7 +57,9 @@ export default function AdminPanel() {
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', exact: true },
     { to: '/admin/users', icon: Users, label: 'Foydalanuvchilar' },
     { to: '/admin/colonies', icon: Layers, label: 'Koloniyalar' },
-    { to: '/admin/transactions', icon: DollarSign, label: 'Tranzaksiyalar' },
+    { to: '/admin/transactions', icon: DollarSign, label: 'Moliya & To\'lovlar' },
+    { to: '/admin/topups', icon: CheckCircle, label: 'Balans So\'rovlari' },
+    { to: '/admin/reports', icon: Activity, label: 'Hisobotlar' },
     { to: '/admin/settings', icon: Settings, label: 'Sozlamalar' },
   ]
 
@@ -101,6 +103,8 @@ export default function AdminPanel() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="colonies" element={<AdminColonies />} />
           <Route path="transactions" element={<AdminTransactions />} />
+          <Route path="topups" element={<AdminTopUps />} />
+          <Route path="reports" element={<AdminReports />} />
           <Route path="settings" element={<AdminSettings />} />
         </Routes>
       </main>
@@ -234,7 +238,7 @@ function AdminUsers() {
         </div>
         <CustomSelect value={roleFilter} onChange={setRoleFilter} options={[{ value: '', label: 'Barcha rollar' },{ value: 'INVESTOR', label: 'Investor' },{ value: 'BEEKEEPER', label: 'Asalarichi' },{ value: 'ADMIN', label: 'Admin' }]} />
       </div>
-      <div className="glass-panel rounded-2xl overflow-hidden">
+      <div className="glass-panel rounded-2xl">
         <table className="w-full">
           <thead><tr className="border-b border-white/5">
             <th className="text-left px-6 py-4 text-xs font-bold text-white/30 uppercase tracking-wider">Foydalanuvchi</th>
@@ -365,9 +369,10 @@ function AdminTransactions() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-3xl font-black">Tranzaksiyalar</h1>
-          <p className="text-white/40 text-sm mt-1">Barcha moliyaviy operatsiyalar</p>
+          <h1 className="font-display text-3xl font-black">Moliya & To'lovlar</h1>
+          <p className="text-white/40 text-sm mt-1">Platformadagi barcha moliyaviy operatsiyalar va balans o'zgarishlari</p>
         </div>
+        <span className="text-sm text-white/30">{transactions.length} ta operatsiya</span>
       </div>
 
       <div className="glass-panel rounded-2xl overflow-hidden">
@@ -396,6 +401,103 @@ function AdminTransactions() {
             )}
           </tbody>
         </table>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════
+//  REPORTS
+// ═══════════════════════════════════════════
+function AdminReports() {
+  const qc = useQueryClient()
+
+  const { data: reportsData } = useQuery({
+    queryKey: ['admin-reports'],
+    queryFn: async () => { const { data } = await adminApi.getReports({ page: 0, size: 50 }); return data },
+  })
+
+  const finalizeMut = useMutation({
+    mutationFn: (id) => reportApi.finalize(id),
+    onSuccess: () => { toast.success('Hisobot tasdiqlandi va foyda taqsimlandi!'); qc.invalidateQueries(['admin-reports']) },
+    onError: (e) => toast.error(e.response?.data?.message || 'Xatolik yuz berdi'),
+  })
+
+  const reports = reportsData?.content || []
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="font-display text-3xl font-black">Asal Hisobotlari</h1>
+          <p className="text-white/40 text-sm mt-1">Asalarichilar tomonidan yuborilgan hisobotlarni tasdiqlash</p>
+        </div>
+        <span className="text-sm text-white/30">{reports.length} ta hisobot</span>
+      </div>
+
+      <div className="grid gap-4">
+        {reports.map(r => (
+          <div key={r.id} className="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            {r.isFinalized && <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-[100px] z-0" />}
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="font-display text-xl font-bold">Asal yig'imi #{r.id}</h3>
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${r.isFinalized ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                    {r.isFinalized ? 'Tasdiqlangan' : 'Kutilmoqda'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  <div>
+                    <div className="text-xs text-white/40 mb-1">Koloniya ID</div>
+                    <div className="font-semibold">{r.colony?.name || r.colony?.id || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-white/40 mb-1">Davr</div>
+                    <div className="font-semibold">{r.periodStart} - {r.periodEnd}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-white/40 mb-1">Hajm (KG)</div>
+                    <div className="font-bold text-amber-400">{r.honeyVolumeKg} KG</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-white/40 mb-1">Xarajatlar</div>
+                    <div className="font-bold text-red-400">${r.expensesUsd}</div>
+                  </div>
+                </div>
+                {r.notes && (
+                  <div className="mt-4 p-3 rounded-xl bg-white/[0.02] text-sm text-white/60 italic border border-white/[0.05]">
+                    "{r.notes}"
+                  </div>
+                )}
+              </div>
+
+              <div className="flex md:flex-col items-center justify-end gap-3 min-w-[140px]">
+                {!r.isFinalized ? (
+                  <button 
+                    onClick={() => finalizeMut.mutate(r.id)}
+                    disabled={finalizeMut.isPending}
+                    className="w-full py-3 px-5 rounded-xl bg-emerald-500/10 text-emerald-400 font-bold hover:bg-emerald-500/20 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" /> 
+                    {finalizeMut.isPending ? 'Kuting...' : 'Tasdiqlash'}
+                  </button>
+                ) : (
+                  <div className="text-emerald-400 text-sm font-bold flex items-center gap-2 px-4 py-2">
+                    <CheckCircle className="w-5 h-5" /> Foyda taqsimlandi
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        ))}
+        {reports.length === 0 && (
+          <div className="glass-panel rounded-2xl p-12 text-center text-white/20 text-sm">
+            Hozircha hisobotlar yo'q
+          </div>
+        )}
       </div>
     </div>
   )
@@ -446,3 +548,81 @@ function AdminSettings() {
   )
 }
 
+// ═══════════════════════════════════════════
+//  TOP-UP REQUESTS MANAGEMENT
+// ═══════════════════════════════════════════
+function AdminTopUps() {
+  const qc = useQueryClient()
+  const { data: topups, isLoading } = useQuery({
+    queryKey: ['admin-topups'],
+    queryFn: async () => {
+      const { data } = await topupApi.getPending()
+      return data
+    },
+  })
+
+  const processMutation = useMutation({
+    mutationFn: ({ id, action, comment }) => topupApi.process(id, { action, comment }),
+    onSuccess: () => {
+      toast.success('Amal bajarildi')
+      qc.invalidateQueries(['admin-topups'])
+      qc.invalidateQueries(['admin-users'])
+    },
+    onError: () => toast.error('Xatolik yuz berdi'),
+  })
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="font-display text-3xl font-black">Balans So'rovlari</h1>
+        <p className="text-white/40 text-sm mt-1">Foydalanuvchilar tomonidan yuborilgan balansni to'ldirish so'rovlari</p>
+      </div>
+
+      <div className="grid gap-4">
+        {topups?.map(t => (
+          <div key={t.id} className="glass-panel rounded-2xl p-6 hover:border-white/10 transition-all duration-300">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-honey-500/10 flex items-center justify-center text-xl">
+                  💰
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{t.user?.fullName || t.user?.phone}</h3>
+                  <p className="text-xs text-white/40">To'lov usuli: <span className="text-honey-400 font-bold">{t.paymentMethod}</span></p>
+                </div>
+              </div>
+
+              <div className="text-center md:text-left">
+                <div className="text-xs text-white/40 mb-1">Summa</div>
+                <div className="text-xl font-black text-honey-400">{Number(t.amount).toLocaleString()} UZS</div>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => processMutation.mutate({ id: t.id, action: 'REJECT' })}
+                  className="px-4 py-2 rounded-xl bg-red-500/10 text-red-400 text-sm font-bold hover:bg-red-500/20 transition-all"
+                >
+                  Rad etish
+                </button>
+                <button
+                  onClick={() => processMutation.mutate({ id: t.id, action: 'APPROVE' })}
+                  className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 text-sm font-bold hover:bg-emerald-500/20 transition-all"
+                >
+                  Tasdiqlash
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {(!topups || topups.length === 0) && !isLoading && (
+          <div className="glass-panel rounded-2xl p-12 text-center text-white/20 text-sm">
+            Hozircha yangi so'rovlar yo'q
+          </div>
+        )}
+        
+        {isLoading && <div className="text-center py-12 text-white/40">Yuklanmoqda...</div>}
+      </div>
+    </div>
+  )
+}

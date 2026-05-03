@@ -244,6 +244,17 @@ public class AdminController {
         return ResponseEntity.ok(transactionRepository.findAll(pageable));
     }
 
+    // ── REPORTS ───────────────────────────────────────────────
+
+    @GetMapping("/reports")
+    public ResponseEntity<Page<com.melarium.entity.HoneyReport>> getAllReports(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return ResponseEntity.ok(honeyReportRepository.findAll(pageable));
+    }
+
     // ── PLATFORM SETTINGS ─────────────────────────────────────
 
     @GetMapping("/settings")
