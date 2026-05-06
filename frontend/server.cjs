@@ -4,14 +4,19 @@ const path = require('path');
 
 const app = express();
 
+// Proxy /api requests to backend, keeping the /api prefix
 app.use('/api', createProxyMiddleware({
   target: 'http://localhost:8090',
   changeOrigin: true,
+  pathRewrite: {
+    // DO NOT remove /api, keep it for Spring Security to match
+    // '^/api': '', 
+  },
 }));
 
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// SPA fallback - Express 5 compatible
+// SPA fallback
 app.use(function(req, res) {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
