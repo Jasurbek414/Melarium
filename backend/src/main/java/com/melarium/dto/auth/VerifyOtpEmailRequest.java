@@ -6,5 +6,6 @@ import jakarta.validation.constraints.Size;
 
 public record VerifyOtpEmailRequest(
         @NotBlank @Email String email,
-        @NotBlank @Size(min = 4, max = 6) String code
+        @NotBlank @Size(min = 4, max = 6) String code,
+        String role
 ) {}

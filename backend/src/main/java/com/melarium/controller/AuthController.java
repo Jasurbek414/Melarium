@@ -51,7 +51,7 @@ public class AuthController {
      */
     @PostMapping("/verify-otp-email")
     public ResponseEntity<AuthResponse> verifyOtpByEmail(@Valid @RequestBody VerifyOtpEmailRequest request) {
-        return ResponseEntity.ok(authService.verifyOtpByEmail(request.email(), request.code()));
+        return ResponseEntity.ok(authService.verifyOtpByEmail(request.email(), request.code(), request.role()));
     }
 
     /**
